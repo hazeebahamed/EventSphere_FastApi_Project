@@ -1,0 +1,593 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="mb-4">Admin Dashboard</h1>
+
+<!-- CSRF Token -->
+
+{% macro token() %}
+
+<input type="hidden"
+       name="csrf_token"
+       value="{{ csrf_token }}">
+
+{% endmacro %}
+
+
+<!-- Event Statistics -->
+
+<h2 class="mb-3">Event Statistics</h2>
+
+<div class="table-responsive">
+
+    <table class="table table-bordered table-striped">
+
+        <thead class="table-dark">
+
+            <tr>
+                <th>Event</th>
+                <th>Capacity</th>
+                <th>Tickets Sold</th>
+                <th>Revenue (LKR)</th>
+                <th>Check-ins</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for s in event_statistics %}
+
+            <tr>
+
+                <td>{{ s.title }}</td>
+
+                <td>{{ s.capacity }}</td>
+
+                <td>{{ s.sold }}</td>
+
+                <td>{{ "%.2f"|format(s.revenue) }}</td>
+
+                <td>{{ s.checkins }}</td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<!-- Create Venue -->
+
+<h2 class="mt-4">Create Venue</h2>
+
+<form method="post"
+      action="/admin/venues"
+      class="card p-3 mb-4">
+
+    {{ token() }}
+
+    <label class="form-label">Venue Name</label>
+
+    <input type="text"
+           name="name"
+           class="form-control mb-3"
+           required>
+
+    <label class="form-label">Location</label>
+
+    <input type="text"
+           name="location"
+           class="form-control mb-3"
+           required>
+
+    <label class="form-label">Capacity</label>
+
+    <input type="number"
+           name="capacity"
+           class="form-control mb-3"
+           min="1"
+           required>
+
+    <label class="form-label">Description</label>
+
+    <textarea name="description"
+              class="form-control mb-3"
+              required></textarea>
+
+    <label class="form-label">Image URL</label>
+
+    <input type="text"
+           name="image"
+           class="form-control mb-3">
+
+    <label class="form-label">Hourly Rate (LKR)</label>
+
+    <input type="number"
+           name="hourly_rate"
+           class="form-control mb-3"
+           min="0"
+           step="0.01"
+           required>
+
+    <div class="form-check mb-3">
+
+        <input type="checkbox"
+               name="private_hire"
+               value="true"
+               class="form-check-input"
+               id="privateHire">
+
+        <label class="form-check-label"
+               for="privateHire">
+
+            Available for Private Hire
+
+        </label>
+
+    </div>
+
+    <button type="submit"
+            class="btn btn-primary">
+
+        Create Venue
+
+    </button>
+
+</form>
+
+
+<!-- Edit Venues -->
+
+<h2>Manage Venues</h2>
+
+{% for venue in venues %}
+
+<details class="card p-3 mb-3">
+
+    <summary>
+
+        <strong>{{ venue.name }}</strong>
+
+        - {{ venue.location }}
+
+    </summary>
+
+    <form method="post"
+          action="/admin/venues/{{ venue.id }}/edit"
+          class="mt-3">
+
+        {{ token() }}
+
+        <label class="form-label">Venue Name</label>
+
+        <input type="text"
+               name="name"
+               value="{{ venue.name }}"
+               class="form-control mb-3"
+               required>
+
+        <label class="form-label">Location</label>
+
+        <input type="text"
+               name="location"
+               value="{{ venue.location }}"
+               class="form-control mb-3"
+               required>
+
+        <label class="form-label">Capacity</label>
+
+        <input type="number"
+               name="capacity"
+               value="{{ venue.capacity }}"
+               class="form-control mb-3"
+               min="1"
+               required>
+
+        <label class="form-label">Description</label>
+
+        <textarea name="description"
+                  class="form-control mb-3"
+                  required>{{ venue.description }}</textarea>
+
+        <label class="form-label">Image URL</label>
+
+        <input type="text"
+               name="image"
+               value="{{ venue.image or '' }}"
+               class="form-control mb-3">
+
+        <label class="form-label">Hourly Rate</label>
+
+        <input type="number"
+               name="hourly_rate"
+               value="{{ venue.hourly_rate }}"
+               class="form-control mb-3"
+               min="0"
+               step="0.01"
+               required>
+
+        <div class="form-check mb-3">
+
+            <input type="checkbox"
+                   name="private_hire"
+                   value="true"
+                   class="form-check-input"
+                   id="privateHire{{ venue.id }}"
+                   {% if venue.private_hire %}
+                   checked
+                   {% endif %}>
+
+            <label class="form-check-label"
+                   for="privateHire{{ venue.id }}">
+
+                Available for Private Hire
+
+            </label>
+
+        </div>
+
+        <button type="submit"
+                class="btn btn-success">
+
+            Save Changes
+
+        </button>
+
+    </form>
+
+</details>
+
+{% else %}
+
+<p>No venues available.</p>
+
+{% endfor %}
+
+
+<!-- Create Event -->
+
+<h2 class="mt-4">Create Event</h2>
+
+<form method="post"
+      action="/admin/events"
+      class="card p-3 mb-4"
+      data-dates>
+
+    {{ token() }}
+
+    <label class="form-label">Event Title</label>
+
+    <input type="text"
+           name="title"
+           class="form-control mb-3"
+           required>
+
+    <label class="form-label">Category</label>
+
+    <input type="text"
+           name="category"
+           class="form-control mb-3"
+           placeholder="Music, Sports, Workshop..."
+           required>
+
+    <label class="form-label">Venue</label>
+
+    <select name="venue_id"
+            class="form-select mb-3"
+            required>
+
+        <option value="">Select Venue</option>
+
+        {% for venue in venues %}
+
+        <option value="{{ venue.id }}">
+
+            {{ venue.name }} - Capacity {{ venue.capacity }}
+
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+    <label class="form-label">Start Date and Time</label>
+
+    <input type="datetime-local"
+           name="start_time"
+           class="form-control mb-3"
+           required>
+
+    <label class="form-label">End Date and Time</label>
+
+    <input type="datetime-local"
+           name="end_time"
+           class="form-control mb-3"
+           required>
+
+    <label class="form-label">Description</label>
+
+    <textarea name="description"
+              class="form-control mb-3"
+              required></textarea>
+
+
+    <!-- Ticket Categories -->
+
+    <h4>Ticket Categories</h4>
+
+    <div id="ticket-rows">
+
+        <div class="ticket-row border rounded p-3 mb-3">
+
+            <label class="form-label">Ticket Name</label>
+
+            <input type="text"
+                   name="ticket_name"
+                   class="form-control mb-3"
+                   placeholder="VIP or General"
+                   required>
+
+            <label class="form-label">Ticket Price</label>
+
+            <input type="number"
+                   name="ticket_price"
+                   class="form-control mb-3"
+                   min="0"
+                   step="0.01"
+                   required>
+
+            <label class="form-label">Ticket Quantity</label>
+
+            <input type="number"
+                   name="ticket_quantity"
+                   class="form-control mb-3"
+                   min="1"
+                   required>
+
+        </div>
+
+    </div>
+
+    <button type="button"
+            id="add-category"
+            class="btn btn-outline-secondary mb-3">
+
+        + Add Ticket Category
+
+    </button>
+
+    <label class="form-label">Event Status</label>
+
+    <select name="status"
+            class="form-select mb-3">
+
+        <option value="draft">Draft</option>
+
+        <option value="published">Published</option>
+
+    </select>
+
+    <button type="submit"
+            class="btn btn-primary">
+
+        Create Event
+
+    </button>
+
+</form>
+
+
+<!-- Manage Events -->
+
+<h2>Manage Events</h2>
+
+<div class="table-responsive mb-4">
+
+    <table class="table table-bordered">
+
+        <thead class="table-dark">
+
+            <tr>
+
+                <th>Event</th>
+
+                <th>Category</th>
+
+                <th>Status</th>
+
+                <th>Action</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for event in events %}
+
+            <tr>
+
+                <td>{{ event.title }}</td>
+
+                <td>{{ event.category }}</td>
+
+                <td>{{ event.status }}</td>
+
+                <td>
+
+                    {% if event.status == "draft" %}
+
+                    <form method="post"
+                          action="/admin/events/{{ event.id }}/publish">
+
+                        {{ token() }}
+
+                        <button class="btn btn-success btn-sm">
+
+                            Publish
+
+                        </button>
+
+                    </form>
+
+                    {% elif event.status == "published" %}
+
+                    <form method="post"
+                          action="/admin/events/{{ event.id }}/cancel">
+
+                        {{ token() }}
+
+                        <button class="btn btn-danger btn-sm">
+
+                            Cancel Event
+
+                        </button>
+
+                    </form>
+
+                    {% else %}
+
+                    No Action
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<!-- Private Hire Requests -->
+
+<h2>Private Venue Hire Requests</h2>
+
+{% for hire in hires %}
+
+<div class="card p-3 mb-3">
+
+    <h5>Hire Request #{{ hire.id }}</h5>
+
+    <p>Venue ID: {{ hire.venue_id }}</p>
+
+    <p>Purpose: {{ hire.purpose }}</p>
+
+    <p>Guests: {{ hire.guest_count }}</p>
+
+    <p>Start: {{ hire.start_time }} UTC</p>
+
+    <p>End: {{ hire.end_time }} UTC</p>
+
+    <p>Price: LKR {{ hire.price }}</p>
+
+    <p>Status: {{ hire.status }}</p>
+
+    {% if hire.status == "pending" %}
+
+    <form method="post"
+          action="/admin/hires/{{ hire.id }}/decision">
+
+        {{ token() }}
+
+        <button type="submit"
+                name="decision"
+                value="approve"
+                class="btn btn-success">
+
+            Approve
+
+        </button>
+
+        <button type="submit"
+                name="decision"
+                value="reject"
+                class="btn btn-danger">
+
+            Reject
+
+        </button>
+
+    </form>
+
+    {% endif %}
+
+</div>
+
+{% else %}
+
+<p>No private hire requests.</p>
+
+{% endfor %}
+
+
+<!-- Agent Communication Logs -->
+
+<h2 class="mt-4">Agent Communication Logs</h2>
+
+<a href="/admin/logs"
+   class="btn btn-primary mb-3">
+
+    View Full Agent Logs
+
+</a>
+
+<div class="table-responsive">
+
+    <table class="table table-bordered table-striped">
+
+        <thead class="table-dark">
+
+            <tr>
+
+                <th>Sender</th>
+
+                <th>Receiver</th>
+
+                <th>Performative</th>
+
+                <th>Conversation ID</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for log in logs %}
+
+            <tr>
+
+                <td>{{ log.sender }}</td>
+
+                <td>{{ log.receiver }}</td>
+
+                <td>{{ log.performative }}</td>
+
+                <td class="text-break">
+                    {{ log.conversation_id }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
