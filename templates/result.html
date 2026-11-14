@@ -1,0 +1,337 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="mb-4">Request Result</h1>
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <!-- Agent Response Status -->
+
+        {% if result.performative == "AGREE" %}
+
+        <div class="alert alert-success">
+
+            <h4>Request Accepted</h4>
+
+            Your request was processed successfully.
+
+        </div>
+
+        {% elif result.performative == "REFUSE" %}
+
+        <div class="alert alert-danger">
+
+            <h4>Request Rejected</h4>
+
+            Your request could not be accepted.
+
+        </div>
+
+        {% elif result.performative == "PROPOSE" %}
+
+        <div class="alert alert-warning">
+
+            <h4>Alternative Suggested</h4>
+
+            The agent has suggested an alternative solution.
+
+        </div>
+
+        {% elif result.performative == "FAILURE" %}
+
+        <div class="alert alert-danger">
+
+            <h4>Request Failed</h4>
+
+            An error occurred while processing your request.
+
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-info">
+
+            <h4>Agent Response</h4>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- Agent Information -->
+
+        <h5>Response Details</h5>
+
+        <p>
+
+            <strong>Agent:</strong>
+
+            {{ result.sender }}
+
+        </p>
+
+        <p>
+
+            <strong>Performative:</strong>
+
+            {{ result.performative }}
+
+        </p>
+
+        <p class="text-break">
+
+            <strong>Conversation ID:</strong>
+
+            {{ result.conversation_id }}
+
+        </p>
+
+
+        <!-- Agent Message -->
+
+        {% if result.content.message %}
+
+        <p>
+
+            <strong>Message:</strong>
+
+            {{ result.content.message }}
+
+        </p>
+
+        {% endif %}
+
+
+        <!-- Refusal Reason -->
+
+        {% if result.content.reason %}
+
+        <p>
+
+            <strong>Reason:</strong>
+
+            {{ result.content.reason }}
+
+        </p>
+
+        {% endif %}
+
+
+        <!-- Booking Information -->
+
+        {% if result.content.booking_id is defined %}
+
+        <p>
+
+            <strong>Booking ID:</strong>
+
+            {{ result.content.booking_id }}
+
+        </p>
+
+        {% endif %}
+
+
+        {% if result.content.payment_reference is defined %}
+
+        <p>
+
+            <strong>Payment Reference:</strong>
+
+            {{ result.content.payment_reference }}
+
+        </p>
+
+        {% endif %}
+
+
+        <!-- Venue Hire Information -->
+
+        {% if result.content.hire_id is defined %}
+
+        <p>
+
+            <strong>Hire Request ID:</strong>
+
+            {{ result.content.hire_id }}
+
+        </p>
+
+        {% endif %}
+
+
+        {% if result.content.status is defined %}
+
+        <p>
+
+            <strong>Status:</strong>
+
+            {{ result.content.status }}
+
+        </p>
+
+        {% endif %}
+
+
+        {% if result.content.price is defined %}
+
+        <p>
+
+            <strong>Price:</strong>
+
+            LKR {{ result.content.price }}
+
+        </p>
+
+        {% endif %}
+
+
+        {% if result.content.total is defined %}
+
+        <p>
+
+            <strong>Total Amount:</strong>
+
+            LKR {{ result.content.total }}
+
+        </p>
+
+        {% endif %}
+
+
+        {% if result.content.refund is defined %}
+
+        <p>
+
+            <strong>Refund Amount:</strong>
+
+            LKR {{ result.content.refund }}
+
+        </p>
+
+        {% endif %}
+
+
+        <!-- Alternative Time Slots -->
+
+        {% if result.content.alternatives %}
+
+        <hr>
+
+        <h5>Suggested Alternatives</h5>
+
+        {% for alternative in result.content.alternatives %}
+
+        <div class="border rounded p-3 mb-3">
+
+            {% if alternative is mapping %}
+
+                {% for key, value in alternative.items() %}
+
+                <p class="mb-1">
+
+                    <strong>
+                        {{ key|replace("_", " ")|title }}:
+                    </strong>
+
+                    {{ value }}
+
+                </p>
+
+                {% endfor %}
+
+            {% else %}
+
+                {{ alternative }}
+
+            {% endif %}
+
+        </div>
+
+        {% endfor %}
+
+        <a href="/venues"
+           class="btn btn-outline-primary mb-3">
+
+            Choose Another Time Slot
+
+        </a>
+
+        {% endif %}
+
+
+        <!-- Structured Agent Message -->
+
+        <hr>
+
+        <details class="mb-4">
+
+            <summary>
+
+                View Agent JSON Message
+
+            </summary>
+
+            <pre class="bg-light border rounded p-3 mt-3"
+                 style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ result | tojson(indent=4) }}</pre>
+
+        </details>
+
+
+        <!-- Navigation Buttons -->
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a href="/" class="btn btn-primary">
+
+                Home
+
+            </a>
+
+            {% if current_role == "attendee" %}
+
+            <a href="/bookings"
+               class="btn btn-outline-primary">
+
+                My Bookings
+
+            </a>
+
+            <a href="/venues"
+               class="btn btn-outline-secondary">
+
+                Browse Venues
+
+            </a>
+
+            {% elif current_role == "admin" %}
+
+            <a href="/admin"
+               class="btn btn-outline-primary">
+
+                Admin Dashboard
+
+            </a>
+
+            {% elif current_role == "staff" %}
+
+            <a href="/scanner"
+               class="btn btn-outline-primary">
+
+                Back to Scanner
+
+            </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
