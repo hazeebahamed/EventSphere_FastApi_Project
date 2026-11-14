@@ -1,0 +1,551 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="mb-4">My Bookings</h1>
+
+<!-- ====================================== -->
+<!-- TICKET BOOKING HISTORY                 -->
+<!-- ====================================== -->
+
+<h2 class="mb-3">Ticket Bookings</h2>
+
+{% for item in bookings %}
+
+<div class="card shadow-sm mb-4">
+
+    <div class="card-body">
+
+        <h4>{{ item.event.title }}</h4>
+
+        <p>
+            <strong>Booking ID:</strong>
+            {{ item.booking.id }}
+        </p>
+
+        <p>
+            <strong>Event Category:</strong>
+            {{ item.event.category }}
+        </p>
+
+        <p>
+            <strong>Event Start:</strong>
+            {{ item.event.start_time }} UTC
+        </p>
+
+        <p>
+            <strong>Ticket Category:</strong>
+            {{ item.category.name }}
+        </p>
+
+        <p>
+            <strong>Quantity:</strong>
+            {{ item.booking.quantity }}
+        </p>
+
+        <p>
+            <strong>Total Amount:</strong>
+            LKR {{ "%.2f"|format(item.booking.total) }}
+        </p>
+
+        <p>
+            <strong>Payment Reference:</strong>
+            {{ item.booking.payment_reference }}
+        </p>
+
+        <p>
+            <strong>Booking Date:</strong>
+            {{ item.booking.created_at }} UTC
+        </p>
+
+        <!-- Booking Status -->
+
+        <p>
+
+            <strong>Status:</strong>
+
+            {% if item.booking.status == "confirmed" %}
+
+            <span class="badge bg-success">
+                Confirmed
+            </span>
+
+            {% elif item.booking.status == "cancelled" %}
+
+            <span class="badge bg-danger">
+                Cancelled
+            </span>
+
+            {% else %}
+
+            <span class="badge bg-secondary">
+                {{ item.booking.status }}
+            </span>
+
+            {% endif %}
+
+        </p>
+
+
+        <!-- Refund Information -->
+
+        {% if item.booking.status == "cancelled" %}
+
+        <div class="alert alert-info">
+
+            <strong>Refund Amount:</strong>
+
+            LKR {{ "%.2f"|format(item.booking.refund or 0) }}
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ====================================== -->
+        <!-- QR TICKETS                             -->
+        <!-- ====================================== -->
+
+        {% if item.booking.status == "confirmed" %}
+
+        <hr>
+
+        <h5 class="mb-3">Your QR Tickets</h5>
+
+        <div class="row g-3">
+
+            {% for ticket in item.tickets %}
+
+            <div class="col-12 col-sm-6 col-md-4">
+
+                <div class="border rounded p-3 text-center">
+
+                    <h6>Ticket #{{ ticket.id }}</h6>
+
+                    {% if ticket.status == "valid" %}
+
+                    <img
+                        src="/tickets/{{ ticket.id }}/qr"
+                        alt="Ticket QR Code"
+                        class="img-fluid mb-3"
+                        width="180">
+
+                    <p class="text-break small">
+
+                        {{ ticket.code }}
+
+                    </p>
+
+                    <span class="badge bg-success">
+                        Valid Ticket
+                    </span>
+
+                    {% elif ticket.status == "used" %}
+
+                    <span class="badge bg-primary">
+                        Already Checked In
+                    </span>
+
+                    <p class="mt-2 small">
+
+                        Checked in at:
+
+                        {{ ticket.checked_in_at }} UTC
+
+                    </p>
+
+                    {% else %}
+
+                    <span class="badge bg-danger">
+                        {{ ticket.status }}
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% else %}
+
+            <p>No tickets available.</p>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- Cancel Booking -->
+
+        <hr>
+
+        <form
+            method="post"
+            action="/bookings/{{ item.booking.id }}/cancel"
+            onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token }}">
+
+            <button
+                type="submit"
+                class="btn btn-danger">
+
+                Cancel Booking
+
+            </button>
+
+        </form>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% else %}
+
+<div class="alert alert-info">
+
+    You have not booked any tickets yet.
+
+</div>
+
+<a href="/" class="btn btn-primary">
+
+    Browse Events
+
+</a>
+
+{% endfor %}
+
+
+<!-- ====================================== -->
+<!-- REFUND POLICY                          -->
+<!-- ====================================== -->
+
+<div class="card p-3 mt-4 mb-4">
+
+    <h5>Booking Refund Policy</h5>
+
+    <ul class="mb-0">
+
+        <li>
+            48 hours or more before the event:
+            100% refund.
+        </li>
+
+        <li>
+            24 to less than 48 hours before the event:
+            50% refund.
+        </li>
+
+        <li>
+            Less than 24 hours before the event:
+            No refund.
+        </li>
+
+        <li>
+            Event cancelled by administrator:
+            100% refund.
+        </li>
+
+    </ul>
+
+</div>
+
+
+<!-- ====================================== -->
+<!-- WAITLIST OFFERS                        -->
+<!-- ====================================== -->
+
+<h2 class="mt-5 mb-3">My Waitlist</h2>
+
+{% for entry in waitlists %}
+
+<div class="card shadow-sm mb-3">
+
+    <div class="card-body">
+
+        <h5>Waitlist #{{ entry.id }}</h5>
+
+        <p>
+            <strong>Ticket Category ID:</strong>
+            {{ entry.category_id }}
+        </p>
+
+        <p>
+            <strong>Requested Quantity:</strong>
+            {{ entry.quantity }}
+        </p>
+
+        <p>
+
+            <strong>Status:</strong>
+
+            {% if entry.status == "waiting" %}
+
+            <span class="badge bg-warning text-dark">
+                Waiting
+            </span>
+
+            {% elif entry.status == "offered" %}
+
+            <span class="badge bg-success">
+                Tickets Available
+            </span>
+
+            {% elif entry.status == "claimed" %}
+
+            <span class="badge bg-primary">
+                Claimed
+            </span>
+
+            {% elif entry.status == "expired" %}
+
+            <span class="badge bg-danger">
+                Expired
+            </span>
+
+            {% else %}
+
+            <span class="badge bg-secondary">
+                {{ entry.status }}
+            </span>
+
+            {% endif %}
+
+        </p>
+
+
+        <!-- Waitlist Offer -->
+
+        {% if entry.status == "offered" and entry.expires_at %}
+
+        <div class="alert alert-success">
+
+            Tickets are now available!
+
+            Please claim them before the offer expires.
+
+        </div>
+
+        <p>
+            <strong>Offer Expires:</strong>
+            {{ entry.expires_at }} UTC
+        </p>
+
+        <p>
+
+            <strong>Time Remaining:</strong>
+
+            <span
+                class="countdown text-danger fw-bold"
+                data-expiry="{{ entry.expires_at.isoformat() }}Z">
+
+                Calculating...
+
+            </span>
+
+        </p>
+
+        <form method="post" action="/waitlist/claim">
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token }}">
+
+            <input
+                type="hidden"
+                name="waitlist_id"
+                value="{{ entry.id }}">
+
+            <button
+                type="submit"
+                class="btn btn-success claim-button">
+
+                Claim Tickets
+
+            </button>
+
+        </form>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% else %}
+
+<div class="alert alert-info">
+
+    You have not joined any waitlists.
+
+</div>
+
+{% endfor %}
+
+
+<!-- ====================================== -->
+<!-- PRIVATE VENUE HIRE HISTORY             -->
+<!-- ====================================== -->
+
+<h2 class="mt-5 mb-3">My Venue Hire Requests</h2>
+
+{% for hire in hires %}
+
+<div class="card shadow-sm mb-3">
+
+    <div class="card-body">
+
+        <h5>Hire Request #{{ hire.id }}</h5>
+
+        <p>
+            <strong>Venue ID:</strong>
+            {{ hire.venue_id }}
+        </p>
+
+        <p>
+            <strong>Purpose:</strong>
+            {{ hire.purpose }}
+        </p>
+
+        <p>
+            <strong>Number of Guests:</strong>
+            {{ hire.guest_count }}
+        </p>
+
+        <p>
+            <strong>Start Date and Time:</strong>
+            {{ hire.start_time }} UTC
+        </p>
+
+        <p>
+            <strong>End Date and Time:</strong>
+            {{ hire.end_time }} UTC
+        </p>
+
+        <p>
+            <strong>Total Price:</strong>
+            LKR {{ "%.2f"|format(hire.price) }}
+        </p>
+
+        <p>
+
+            <strong>Status:</strong>
+
+            {% if hire.status == "confirmed" %}
+
+            <span class="badge bg-success">
+                Confirmed
+            </span>
+
+            {% elif hire.status == "pending" %}
+
+            <span class="badge bg-warning text-dark">
+                Waiting for Admin Approval
+            </span>
+
+            {% elif hire.status == "rejected" %}
+
+            <span class="badge bg-danger">
+                Rejected
+            </span>
+
+            {% else %}
+
+            <span class="badge bg-secondary">
+                {{ hire.status }}
+            </span>
+
+            {% endif %}
+
+        </p>
+
+    </div>
+
+</div>
+
+{% else %}
+
+<div class="alert alert-info">
+
+    You have not requested any private venue hires.
+
+</div>
+
+<a href="/venues" class="btn btn-primary">
+
+    Browse Venues
+
+</a>
+
+{% endfor %}
+
+
+<!-- ====================================== -->
+<!-- WAITLIST COUNTDOWN JAVASCRIPT          -->
+<!-- ====================================== -->
+
+<script>
+
+    function updateCountdowns() {
+
+        document.querySelectorAll(".countdown")
+            .forEach(function(element) {
+
+                const expiry = new Date(
+                    element.dataset.expiry
+                ).getTime();
+
+                const now = Date.now();
+
+                const remaining = expiry - now;
+
+                if (!Number.isFinite(expiry) || remaining <= 0) {
+
+                    element.textContent = "Offer Expired";
+
+                    const card = element.closest(".card");
+
+                    const button = card.querySelector(
+                        ".claim-button"
+                    );
+
+                    if (button) {
+
+                        button.disabled = true;
+
+                    }
+
+                    return;
+
+                }
+
+                const minutes = Math.floor(
+                    remaining / 60000
+                );
+
+                const seconds = Math.floor(
+                    (remaining % 60000) / 1000
+                );
+
+                element.textContent =
+                    minutes + "m " + seconds + "s";
+
+            });
+
+    }
+
+    updateCountdowns();
+
+    setInterval(updateCountdowns, 1000);
+
+</script>
+
+{% endblock %}
