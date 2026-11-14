@@ -1,0 +1,335 @@
+
+/* =========================================
+   EventSphere - Main Stylesheet
+   ========================================= */
+
+
+/* General Page Styles */
+
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+    color: #212529;
+    min-height: 100vh;
+}
+
+
+/* Navigation Bar */
+
+.navbar {
+    padding: 15px 0;
+}
+
+.navbar-brand {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.navbar .btn {
+    font-size: 14px;
+}
+
+.navbar .d-flex {
+    flex-wrap: wrap;
+}
+
+
+/* Headings */
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    font-weight: 600;
+}
+
+h1 {
+    color: #212529;
+}
+
+h2 {
+    font-size: 25px;
+    margin-bottom: 20px;
+}
+
+
+/* Cards */
+
+.card {
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-img-top {
+    height: 220px;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+}
+
+
+/* Venue Images */
+
+.venue-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+
+/* Buttons */
+
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0b5ed7;
+}
+
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+
+/* Forms */
+
+.form-label {
+    font-weight: 500;
+}
+
+.form-control,
+.form-select {
+    border-radius: 6px;
+    padding: 10px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+
+/* Tables */
+
+.table {
+    background-color: #ffffff;
+    vertical-align: middle;
+}
+
+.table th {
+    white-space: nowrap;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table-responsive {
+    border-radius: 6px;
+}
+
+
+/* Ticket Categories */
+
+.ticket-row {
+    background-color: #f8f9fa;
+}
+
+
+/* QR Tickets */
+
+img {
+    max-width: 100%;
+}
+
+.qr-code {
+    width: 180px;
+    max-width: 100%;
+    height: auto;
+    padding: 10px;
+    background-color: #ffffff;
+}
+
+
+/* QR Scanner */
+
+#reader {
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+#reader video {
+    max-width: 100%;
+}
+
+#scan-result {
+    margin-top: 20px;
+}
+
+
+/* Waitlist Countdown */
+
+.countdown {
+    font-weight: bold;
+    color: #dc3545;
+    font-size: 18px;
+}
+
+
+/* Notifications */
+
+.card.border-primary {
+    border-left: 4px solid #0d6efd !important;
+}
+
+
+/* Agent Communication Logs */
+
+.agent-json,
+pre {
+    font-size: 13px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+summary {
+    cursor: pointer;
+}
+
+summary:hover {
+    color: #0d6efd;
+}
+
+
+/* Status Badges */
+
+.badge {
+    font-size: 12px;
+    padding: 7px 10px;
+}
+
+
+/* Alerts */
+
+.alert {
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+}
+
+
+/* Footer */
+
+footer {
+    background-color: #212529;
+    color: #ffffff;
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+}
+
+
+/* =========================================
+   Mobile Responsive Design
+   ========================================= */
+
+@media (max-width: 576px) {
+
+    .navbar .container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .navbar-brand {
+        font-size: 22px;
+    }
+
+    .navbar .d-flex {
+        flex-wrap: wrap;
+        gap: 6px !important;
+    }
+
+    .navbar .btn {
+        font-size: 13px;
+        padding: 7px 10px;
+    }
+
+    main.container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    h1 {
+        font-size: 25px;
+    }
+
+    h2 {
+        font-size: 21px;
+    }
+
+    h3 {
+        font-size: 19px;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .card-img-top,
+    .venue-image {
+        height: 180px;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 16px;
+    }
+
+    .table {
+        font-size: 13px;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px;
+    }
+
+    #reader {
+        width: 100%;
+    }
+
+    .qr-code {
+        width: 150px;
+    }
+
+    pre {
+        font-size: 11px;
+    }
+
+    footer {
+        font-size: 13px;
+    }
+
+}
