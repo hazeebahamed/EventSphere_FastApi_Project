@@ -1,0 +1,399 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+    .venue-card {
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: transform 0.3s;
+    }
+
+    .venue-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .venue-image {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+    }
+
+    .venue-price {
+        color: #198754;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .hire-form {
+        background: #f8f9fa;
+        padding: 18px;
+        border-radius: 12px;
+    }
+
+    .price-box {
+        background: #e8f5e9;
+        padding: 12px;
+        border-radius: 8px;
+        color: #198754;
+        font-weight: bold;
+    }
+
+</style>
+
+<!-- Page Heading -->
+
+<div class="text-center mb-5">
+
+    <h1 class="fw-bold">Private Venue Hire</h1>
+
+    <p class="text-muted">
+        Find the perfect venue for your private event.
+    </p>
+
+</div>
+
+<!-- Available Venues -->
+
+<div class="row g-4">
+
+    {% for venue in venues %}
+
+    <div class="col-12 col-md-6 col-lg-4">
+
+        <div class="card venue-card shadow-sm h-100">
+
+            <!-- Venue Image -->
+
+            {% if venue.image %}
+
+            <img
+                src="{{ venue.image }}"
+                class="venue-image"
+                alt="{{ venue.name }}">
+
+            {% else %}
+
+            <div class="venue-image bg-secondary-subtle
+                        d-flex align-items-center
+                        justify-content-center">
+
+                <span class="text-muted">
+                    No image available
+                </span>
+
+            </div>
+
+            {% endif %}
+
+            <div class="card-body">
+
+                <span class="badge bg-success mb-2">
+                    Open for Private Hire
+                </span>
+
+                <h3 class="fw-bold">
+                    {{ venue.name }}
+                </h3>
+
+                <p class="text-muted">
+                    Location: {{ venue.location }}
+                </p>
+
+                <p>
+                    {{ venue.description }}
+                </p>
+
+                <p>
+                    <strong>Capacity:</strong>
+                    {{ venue.capacity }} guests
+                </p>
+
+                <p class="venue-price">
+
+                    LKR {{ "%.2f"|format(venue.hourly_rate) }}
+
+                    <small class="text-muted fs-6">
+                        / hour
+                    </small>
+
+                </p>
+
+                <hr>
+
+                {% if current_role == "attendee" %}
+
+                <!-- Private Hire Form -->
+
+                <form
+                    method="post"
+                    action="/hire"
+                    class="hire-form"
+                    data-rate="{{ venue.hourly_rate }}">
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token }}">
+
+                    <input
+                        type="hidden"
+                        name="venue_id"
+                        value="{{ venue.id }}">
+
+                    <h5 class="mb-3">
+                        Request Venue Hire
+                    </h5>
+
+                    <!-- Start Time -->
+
+                    <label class="form-label">
+                        Start Date and Time
+                    </label>
+
+                    <input
+                        type="datetime-local"
+                        name="start_time"
+                        class="form-control mb-3 start-time"
+                        required>
+
+                    <!-- End Time -->
+
+                    <label class="form-label">
+                        End Date and Time
+                    </label>
+
+                    <input
+                        type="datetime-local"
+                        name="end_time"
+                        class="form-control mb-3 end-time"
+                        required>
+
+                    <!-- Purpose -->
+
+                    <label class="form-label">
+                        Purpose of Hire
+                    </label>
+
+                    <textarea
+                        name="purpose"
+                        class="form-control mb-3"
+                        rows="3"
+                        placeholder="Birthday, farewell, club meeting..."
+                        required></textarea>
+
+                    <!-- Number of Guests -->
+
+                    <label class="form-label">
+                        Number of Guests
+                    </label>
+
+                    <input
+                        type="number"
+                        name="guest_count"
+                        class="form-control mb-3"
+                        min="1"
+                        max="{{ venue.capacity }}"
+                        placeholder="Enter guest count"
+                        required>
+
+                    <!-- Estimated Price -->
+
+                    <div class="price-box mb-3">
+
+                        Estimated Price:
+
+                        <span class="estimated-price">
+                            LKR 0.00
+                        </span>
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100">
+
+                        Request Venue
+
+                    </button>
+
+                </form>
+
+                {% elif not current_user_id %}
+
+                <a
+                    href="/login"
+                    class="btn btn-primary w-100">
+
+                    Login to Hire Venue
+
+                </a>
+
+                {% else %}
+
+                <div class="alert alert-info">
+
+                    Only attendees can request
+                    private venue hire.
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <!-- No Venues Available -->
+
+    <div class="col-12">
+
+        <div class="alert alert-info text-center">
+
+            No venues are currently open
+            for private hire.
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<!-- JavaScript -->
+
+<script>
+
+    document.querySelectorAll(".hire-form")
+        .forEach(function(form) {
+
+        const start = form.querySelector(".start-time");
+
+        const end = form.querySelector(".end-time");
+
+        const price = form.querySelector(".estimated-price");
+
+        const hourlyRate = Number(form.dataset.rate);
+
+        // Convert a date into local input format
+
+        function localDateTime(date) {
+
+            const offset = date.getTimezoneOffset();
+
+            return new Date(
+                date.getTime() - offset * 60000
+            ).toISOString().slice(0, 16);
+
+        }
+
+        // Prevent selecting past dates
+
+        start.min = localDateTime(new Date());
+
+        end.min = start.min;
+
+        // Calculate estimated price
+
+        function calculatePrice() {
+
+            if (!start.value || !end.value) {
+
+                price.textContent = "LKR 0.00";
+
+                return;
+
+            }
+
+            const startDate = new Date(start.value);
+
+            const endDate = new Date(end.value);
+
+            const hours =
+                (endDate - startDate) / (1000 * 60 * 60);
+
+            if (hours <= 0) {
+
+                price.textContent = "Invalid time range";
+
+                return;
+
+            }
+
+            const total = hours * hourlyRate;
+
+            price.textContent = "LKR " +
+                total.toLocaleString("en-LK", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+
+        }
+
+        start.addEventListener("change", function() {
+
+            end.min = start.value;
+
+            calculatePrice();
+
+        });
+
+        end.addEventListener("change", calculatePrice);
+
+        // Validate and submit UTC dates to FastAPI
+
+        form.addEventListener("submit", function(event) {
+
+            const startDate = new Date(start.value);
+
+            const endDate = new Date(end.value);
+
+            if (startDate < new Date()) {
+
+                event.preventDefault();
+
+                alert("Start time cannot be in the past.");
+
+                return;
+
+            }
+
+            if (endDate <= startDate) {
+
+                event.preventDefault();
+
+                alert("End time must be after start time.");
+
+                return;
+
+            }
+
+        });
+
+        form.addEventListener("formdata", function(event) {
+
+            event.formData.set(
+                "start_time",
+                new Date(start.value).toISOString()
+            );
+
+            event.formData.set(
+                "end_time",
+                new Date(end.value).toISOString()
+            );
+
+        });
+
+    });
+
+</script>
+
+{% endblock %}
