@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Staff Ticket Scanner</h2>
+
+<form id="scan-form">
+
+    <input type="hidden"
+           name="csrf_token"
+           value="{{ csrf_token }}">
+
+    <select name="event_id"
+            class="form-select mb-3"
+            required>
+
+        {% for event in events %}
+
+        <option value="{{ event.id }}">
+            {{ event.title }}
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+    <input id="code"
+           name="code"
+           class="form-control mb-3"
+           placeholder="Enter ticket code"
+           required>
+
+    <button class="btn btn-primary">
+        Validate Ticket
+    </button>
+
+</form>
+
+<div id="reader" class="mt-3"></div>
+
+<div id="result" class="mt-3"></div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script>
+
+let busy = false;
+
+async function validateTicket() {
+
+    if (busy) return;
+
+    busy = true;
+
+    try {
+
+        const form = document.getElementById("scan-form");
+
+        const response = await fetch("/scan", {
+            method: "POST",
+            body: new FormData(form)
+        });
+
+        const result = await response.json();
+
+        const output = document.getElementById("result");
+
+        const admitted = result.performative === "AGREE";
+
+        output.className = admitted
+            ? "alert alert-success mt-3"
+            : "alert alert-danger mt-3";
+
+        output.textContent = admitted
+            ? "Entry Approved"
+            : result.content?.reason || "Request rejected";
+
+    } finally {
+        busy = false;
+    }
+}
+
+document.getElementById("scan-form")
+    .addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        validateTicket();
+
+    });
+
+let scanner = new Html5QrcodeScanner(
+    "reader",
+    { fps: 10, qrbox: 220 }
+);
+
+scanner.render(async function(decodedText) {
+
+    document.getElementById("code").value = decodedText;
+
+    await scanner.clear();
+
+    await validateTicket();
+
+});
+
+</script>
+
+{% endblock %}
