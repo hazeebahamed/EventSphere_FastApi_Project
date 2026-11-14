@@ -1,0 +1,131 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="mb-4">My Notifications</h1>
+
+<p class="text-muted">
+
+    View your booking updates, waitlist offers
+    and venue hire notifications.
+
+</p>
+
+<!-- Notification List -->
+
+{% for notification in notifications %}
+
+<div class="card shadow-sm mb-3
+    {% if not notification.is_read %}
+        border-primary
+    {% endif %}">
+
+    <div class="card-body">
+
+        <!-- Notification Status -->
+
+        {% if notification.is_read %}
+
+        <span class="badge bg-secondary mb-2">
+
+            Read
+
+        </span>
+
+        {% else %}
+
+        <span class="badge bg-primary mb-2">
+
+            New
+
+        </span>
+
+        {% endif %}
+
+
+        <!-- Notification Message -->
+
+        <p class="mb-2">
+
+            {{ notification.message }}
+
+        </p>
+
+
+        <!-- Notification Date -->
+
+        <p class="text-muted small">
+
+            {{ notification.created_at.strftime(
+                "%Y-%m-%d %H:%M"
+            ) }} UTC
+
+        </p>
+
+
+        <!-- Mark as Read -->
+
+        {% if not notification.is_read %}
+
+        <form
+            method="post"
+            action="/notifications/{{ notification.id }}/read">
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token }}">
+
+            <button
+                type="submit"
+                class="btn btn-outline-primary btn-sm">
+
+                Mark as Read
+
+            </button>
+
+        </form>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% else %}
+
+<!-- No Notifications -->
+
+<div class="alert alert-info">
+
+    You do not have any notifications yet.
+
+</div>
+
+{% endfor %}
+
+
+<!-- Navigation Buttons -->
+
+<div class="d-flex flex-wrap gap-2 mt-4">
+
+    <a href="/" class="btn btn-primary">
+
+        Browse Events
+
+    </a>
+
+    {% if current_role == "attendee" %}
+
+    <a href="/bookings" class="btn btn-outline-primary">
+
+        My Bookings
+
+    </a>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
