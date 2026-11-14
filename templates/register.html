@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card p-4 mx-auto" style="max-width: 420px">
+
+    <h2>Create Account</h2>
+
+    <form method="post" action="/register">
+
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token }}">
+
+        <label>Full Name</label>
+
+        <input name="name"
+               class="form-control mb-3"
+               required>
+
+        <label>Email</label>
+
+        <input type="email"
+               name="email"
+               class="form-control mb-3"
+               required>
+
+        <label>Password</label>
+
+        <input type="password"
+               name="password"
+               minlength="8"
+               class="form-control mb-3"
+               required>
+
+        <button class="btn btn-primary w-100">
+            Register
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}
