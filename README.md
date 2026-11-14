@@ -1,1 +1,0 @@
-# EventSphere_FastApi_Project
