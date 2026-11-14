@@ -1,0 +1,319 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="mb-4">Agent Communication Logs</h1>
+
+<p class="text-muted">
+
+    Monitor structured messages exchanged
+    between EventSphere software agents.
+
+</p>
+
+
+<!-- Search Conversation -->
+
+<form method="get"
+      action="/admin/logs"
+      class="card p-3 mb-4">
+
+    <label class="form-label">
+
+        Conversation ID
+
+    </label>
+
+    <div class="d-flex flex-wrap gap-2">
+
+        <input
+            type="text"
+            name="conversation_id"
+            class="form-control"
+            value="{{ conversation_id or '' }}"
+            placeholder="Enter Conversation ID">
+
+        <button
+            type="submit"
+            class="btn btn-primary">
+
+            Search
+
+        </button>
+
+        <a href="/admin/logs"
+           class="btn btn-secondary">
+
+            Clear
+
+        </a>
+
+    </div>
+
+</form>
+
+
+<!-- Performative Information -->
+
+<div class="card p-3 mb-4">
+
+    <h5>Agent Performatives</h5>
+
+    <div class="d-flex flex-wrap gap-2">
+
+        <span class="badge bg-primary">
+            REQUEST
+        </span>
+
+        <span class="badge bg-success">
+            AGREE
+        </span>
+
+        <span class="badge bg-danger">
+            REFUSE
+        </span>
+
+        <span class="badge bg-warning text-dark">
+            PROPOSE
+        </span>
+
+        <span class="badge bg-info text-dark">
+            INFORM
+        </span>
+
+        <span class="badge bg-dark">
+            FAILURE
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- Total Logs -->
+
+<p>
+
+    <strong>Displayed Messages:</strong>
+
+    {{ logs|length }}
+
+</p>
+
+
+<!-- Agent Message Table -->
+
+<div class="table-responsive">
+
+    <table class="table table-bordered table-striped">
+
+        <thead class="table-dark">
+
+            <tr>
+
+                <th>ID</th>
+
+                <th>Sender</th>
+
+                <th>Receiver</th>
+
+                <th>Performative</th>
+
+                <th>Content</th>
+
+                <th>Conversation ID</th>
+
+                <th>Date and Time</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for log in logs %}
+
+            <tr>
+
+                <td>{{ log.id }}</td>
+
+                <td>
+
+                    <strong>{{ log.sender }}</strong>
+
+                </td>
+
+                <td>{{ log.receiver }}</td>
+
+
+                <!-- Performative Status -->
+
+                <td>
+
+                    {% if log.performative == "REQUEST" %}
+
+                    <span class="badge bg-primary">
+                        REQUEST
+                    </span>
+
+                    {% elif log.performative == "AGREE" %}
+
+                    <span class="badge bg-success">
+                        AGREE
+                    </span>
+
+                    {% elif log.performative == "REFUSE" %}
+
+                    <span class="badge bg-danger">
+                        REFUSE
+                    </span>
+
+                    {% elif log.performative == "PROPOSE" %}
+
+                    <span class="badge bg-warning text-dark">
+                        PROPOSE
+                    </span>
+
+                    {% elif log.performative == "INFORM" %}
+
+                    <span class="badge bg-info text-dark">
+                        INFORM
+                    </span>
+
+                    {% elif log.performative == "FAILURE" %}
+
+                    <span class="badge bg-dark">
+                        FAILURE
+                    </span>
+
+                    {% else %}
+
+                    <span class="badge bg-secondary">
+                        {{ log.performative }}
+                    </span>
+
+                    {% endif %}
+
+                </td>
+
+
+                <!-- JSON Message Content -->
+
+                <td>
+
+                    <details>
+
+                        <summary class="text-primary">
+
+                            View Message
+
+                        </summary>
+
+                        <pre class="bg-light border rounded p-2 mt-2 agent-json"
+                             style="white-space: pre-wrap; overflow-wrap: anywhere; min-width: 200px;">{{ log.content }}</pre>
+
+                    </details>
+
+                </td>
+
+
+                <!-- Conversation ID -->
+
+                <td class="text-break">
+
+                    <a href="/admin/logs?conversation_id={{ log.conversation_id|urlencode }}">
+
+                        {{ log.conversation_id }}
+
+                    </a>
+
+                </td>
+
+
+                <!-- Date and Time -->
+
+                <td>
+
+                    {{ log.created_at.strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    ) }} UTC
+
+                </td>
+
+            </tr>
+
+            {% else %}
+
+            <tr>
+
+                <td colspan="7"
+                    class="text-center text-muted">
+
+                    No agent communication logs found.
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<!-- Navigation Buttons -->
+
+<div class="d-flex flex-wrap gap-2 mt-4">
+
+    <a href="/admin"
+       class="btn btn-primary">
+
+        Back to Admin Dashboard
+
+    </a>
+
+    <a href="/admin/logs{% if conversation_id %}?conversation_id={{ conversation_id|urlencode }}{% endif %}"
+       class="btn btn-outline-secondary">
+
+        Refresh Logs
+
+    </a>
+
+</div>
+
+
+<!-- Format JSON Messages -->
+
+<script>
+
+    document.querySelectorAll(".agent-json")
+        .forEach(function(element) {
+
+            try {
+
+                const message = JSON.parse(
+                    element.textContent
+                );
+
+                element.textContent = JSON.stringify(
+                    message,
+                    null,
+                    4
+                );
+
+            } catch (error) {
+
+                // Keep the original content
+                // if it is not valid JSON.
+
+            }
+
+        });
+
+</script>
+
+{% endblock %}
