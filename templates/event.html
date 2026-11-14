@@ -1,52 +1,174 @@
+
 {% extends "base.html" %}
 
 {% block content %}
 
-<h1>{{ event.title }}</h1>
+<h1 class="mb-3">{{ event.title }}</h1>
 
 <p>{{ event.description }}</p>
 
-<p>{{ event.start_time }}</p>
+<p>
+    <strong>Category:</strong> {{ event.category }}
+</p>
+
+{% if venue %}
+<p>
+    <strong>Venue:</strong> {{ venue.name }}
+</p>
+
+<p>
+    <strong>Location:</strong> {{ venue.location }}
+</p>
+{% endif %}
+
+<p>
+    <strong>Start Time:</strong>
+    {{ event.start_time }} UTC
+</p>
+
+<p>
+    <strong>End Time:</strong>
+    {{ event.end_time }} UTC
+</p>
+
+<hr>
+
+<h3 class="mb-3">Available Tickets</h3>
 
 {% for category in categories %}
 
-<div class="card p-3 mb-3">
+{% set available = category.quantity - category.sold - category.held %}
 
-    <h4>{{ category.name }}</h4>
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
 
-    <p>Price: LKR {{ category.price }}</p>
+        <h4>{{ category.name }}</h4>
 
-    <p>
-        Available:
-        {{ category.quantity - category.sold - category.held }}
-    </p>
+        <p>
+            <strong>Price:</strong>
+            LKR {{ "%.2f"|format(category.price) }}
+        </p>
 
-    <form method="post" action="/book">
+        <p>
+            <strong>Available:</strong> {{ available }}
+        </p>
 
-        <input type="hidden"
-               name="csrf_token"
-               value="{{ csrf_token }}">
+        {% if available > 0 %}
+            <span class="badge bg-success">
+                Available
+            </span>
+        {% else %}
+            <span class="badge bg-danger">
+                Sold Out
+            </span>
+        {% endif %}
 
-        <input type="hidden"
-               name="category_id"
-               value="{{ category.id }}">
+        <hr>
 
-        <input type="number"
-               name="quantity"
-               min="1"
-               max="6"
-               value="1"
-               class="form-control mb-3"
-               required>
+        {% if current_role == "attendee" %}
 
-        <button class="btn btn-success">
-            Simulate Payment and Book
-        </button>
+            {% if available > 0 %}
 
-    </form>
+            <form method="post" action="/book">
 
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token }}">
+
+                <input type="hidden"
+                       name="category_id"
+                       value="{{ category.id }}">
+
+                <label class="form-label">
+                    Ticket Quantity
+                </label>
+
+                <input type="number"
+                       name="quantity"
+                       min="1"
+                       max="{{ [available, 6]|min }}"
+                       value="1"
+                       class="form-control mb-3"
+                       required>
+
+                <button type="submit"
+                        class="btn btn-success">
+                    Simulate Payment and Book
+                </button>
+
+            </form>
+
+            {% else %}
+
+            <div class="alert alert-warning">
+                All tickets have been sold.
+                Join the waitlist to receive a notification
+                when tickets become available.
+            </div>
+
+            <form method="post" action="/waitlist/join">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token }}">
+
+                <input type="hidden"
+                       name="category_id"
+                       value="{{ category.id }}">
+
+                <label class="form-label">
+                    Required Ticket Quantity
+                </label>
+
+                <input type="number"
+                       name="quantity"
+                       min="1"
+                       max="{{ [category.quantity, 6]|min }}"
+                       value="1"
+                       class="form-control mb-3"
+                       required>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Join Waitlist
+                </button>
+
+            </form>
+
+            {% endif %}
+
+        {% elif not current_user_id %}
+
+            <a href="/login" class="btn btn-primary">
+                Login to Book Tickets
+            </a>
+
+            <a href="/register" class="btn btn-outline-primary">
+                Register
+            </a>
+
+        {% else %}
+
+            <div class="alert alert-info">
+                Only attendee accounts can book tickets
+                or join the waitlist.
+            </div>
+
+        {% endif %}
+
+    </div>
+</div>
+
+{% else %}
+
+<div class="alert alert-info">
+    No ticket categories are available.
 </div>
 
 {% endfor %}
+
+<a href="/" class="btn btn-secondary">
+    Back to Events
+</a>
 
 {% endblock %}
