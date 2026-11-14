@@ -1,6 +1,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
     <meta charset="UTF-8">
@@ -10,52 +11,196 @@
 
     <title>EventSphere</title>
 
+    <!-- Bootstrap CSS -->
+
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet">
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <!-- Custom CSS -->
+
+    <link rel="stylesheet"
+          href="/static/style.css">
 
 </head>
 
 <body class="bg-light">
 
-<nav class="navbar navbar-dark bg-dark">
+    <!-- Navigation Bar -->
 
-    <div class="container flex-wrap">
+    <nav class="navbar navbar-dark bg-dark">
 
-        <a class="navbar-brand" href="/">
-            EventSphere
-        </a>
+        <div class="container flex-wrap">
 
-        <div class="d-flex gap-2">
-
-            <a href="/" class="btn btn-outline-light">
-                Events
+            <a class="navbar-brand" href="/">
+                EventSphere
             </a>
 
-            <a href="/venues" class="btn btn-outline-light">
-                Venues
-            </a>
+            <div class="d-flex flex-wrap gap-2">
 
-            <a href="/login" class="btn btn-outline-light">
-                Login
-            </a>
+                <a href="/"
+                   class="btn btn-outline-light">
 
-            <a href="/register" class="btn btn-primary">
-                Register
-            </a>
+                    Events
+
+                </a>
+
+                <a href="/venues"
+                   class="btn btn-outline-light">
+
+                    Venues
+
+                </a>
+
+
+                {% if current_user_id %}
+
+                    <!-- Attendee Navigation -->
+
+                    {% if current_role == "attendee" %}
+
+                    <a href="/bookings"
+                       class="btn btn-outline-light">
+
+                        My Bookings
+
+                    </a>
+
+                    {% endif %}
+
+
+                    <!-- Admin Navigation -->
+
+                    {% if current_role == "admin" %}
+
+                    <a href="/admin"
+                       class="btn btn-outline-light">
+
+                        Admin Dashboard
+
+                    </a>
+
+                    <a href="/admin/logs"
+                       class="btn btn-outline-light">
+
+                        Agent Logs
+
+                    </a>
+
+                    {% endif %}
+
+
+                    <!-- Staff Navigation -->
+
+                    {% if current_role == "staff" %}
+
+                    <a href="/scanner"
+                       class="btn btn-outline-light">
+
+                        QR Scanner
+
+                    </a>
+
+                    {% endif %}
+
+
+                    <!-- Notifications -->
+
+                    <a href="/notifications"
+                       class="btn btn-outline-light">
+
+                        Notifications
+
+                    </a>
+
+
+                    <!-- Logout -->
+
+                    <form method="post"
+                          action="/logout"
+                          class="m-0">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token }}">
+
+                        <button type="submit"
+                                class="btn btn-danger">
+
+                            Logout
+
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <!-- Guest Navigation -->
+
+                    <a href="/login"
+                       class="btn btn-outline-light">
+
+                        Login
+
+                    </a>
+
+                    <a href="/register"
+                       class="btn btn-primary">
+
+                        Register
+
+                    </a>
+
+                {% endif %}
+
+            </div>
 
         </div>
 
+    </nav>
+
+
+    <!-- Logged-in User Information -->
+
+    {% if current_user_id %}
+
+    <div class="container mt-3">
+
+        <p class="text-muted">
+
+            Welcome, {{ current_name }}
+
+            ({{ current_role|title }})
+
+        </p>
+
     </div>
 
-</nav>
+    {% endif %}
 
-<main class="container py-4">
 
-    {% block content %}
-    {% endblock %}
+    <!-- Main Page Content -->
 
-</main>
+    <main class="container py-4">
+
+        {% block content %}
+
+        {% endblock %}
+
+    </main>
+
+
+    <!-- Bootstrap JavaScript -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+
+    <!-- Custom JavaScript -->
+
+    <script src="/static/script.js"></script>
 
 </body>
+
 </html>
