@@ -4,269 +4,831 @@
 {% block content %}
 
 <style>
+    .venues-page {
+        max-width: 1350px;
+        margin: 0 auto;
+        padding: 20px 0 40px;
+        color: #0f172a;
+    }
+
+    .venues-hero {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #172554, #3730a3, #4f46e5);
+        border-radius: 24px;
+        padding: 55px 30px;
+        text-align: center;
+        color: white;
+        margin-bottom: 35px;
+        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.15);
+    }
+
+    .venues-hero::before {
+        content: "";
+        position: absolute;
+        width: 320px;
+        height: 320px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 50%;
+        top: -170px;
+        right: -60px;
+        pointer-events: none;
+    }
+
+    .venues-hero-label {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 30px;
+        padding: 8px 18px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+    }
+
+    .venues-hero h1 {
+        font-size: 40px;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .venues-hero p {
+        max-width: 600px;
+        margin: 0 auto;
+        font-size: 15px;
+        line-height: 1.8;
+        color: #e0e7ff;
+    }
+
+    .venues-section-title {
+        font-size: 27px;
+        font-weight: 750;
+        margin-bottom: 8px;
+    }
+
+    .venues-section-subtitle {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
 
     .venue-card {
-        border: none;
-        border-radius: 16px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
         overflow: hidden;
-        transition: transform 0.3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+        transition: all 0.25s ease;
     }
 
     .venue-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
+    }
+
+    .venue-image-wrapper {
+        position: relative;
+        overflow: hidden;
     }
 
     .venue-image {
         width: 100%;
-        height: 220px;
+        height: 230px;
         object-fit: cover;
+        display: block;
+    }
+
+    .venue-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 12px;
+        background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+        color: #6366f1;
+        font-size: 13px;
+    }
+
+    .venue-availability {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: white;
+        color: #166534;
+        padding: 7px 13px;
+        border-radius: 30px;
+        font-size: 11px;
+        font-weight: 700;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .venue-availability-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #16a34a;
+    }
+
+    .venue-body {
+        padding: 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .venue-name {
+        font-size: 23px;
+        font-weight: 750;
+        margin-bottom: 12px;
+        overflow-wrap: anywhere;
+    }
+
+    .venue-location {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 18px;
+    }
+
+    .venue-description {
+        color: #475569;
+        font-size: 14px;
+        line-height: 1.8;
+        margin-bottom: 20px;
+        overflow-wrap: anywhere;
+        flex-grow: 1;
+    }
+
+    .venue-capacity {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 20px;
+    }
+
+    .venue-capacity-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        background: #e0e7ff;
+        color: #4338ca;
+        border-radius: 10px;
+    }
+
+    .venue-capacity-label {
+        color: #64748b;
+        font-size: 12px;
+        margin-bottom: 3px;
+    }
+
+    .venue-capacity-value {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .venue-price-label {
+        color: #64748b;
+        font-size: 12px;
+        margin-bottom: 5px;
     }
 
     .venue-price {
-        color: #198754;
-        font-size: 22px;
-        font-weight: bold;
+        color: #4338ca;
+        font-size: 27px;
+        font-weight: 750;
+        margin-bottom: 20px;
+    }
+
+    .venue-price small {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 500;
     }
 
     .hire-form {
-        background: #f8f9fa;
-        padding: 18px;
-        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 20px;
+        border-radius: 14px;
+        margin-top: 5px;
+    }
+
+    .hire-form-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 7px;
+    }
+
+    .hire-form-subtitle {
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.7;
+        margin-bottom: 22px;
+    }
+
+    .hire-field {
+        margin-bottom: 18px;
+    }
+
+    .venues-page .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .venues-page .form-control {
+        min-height: 46px;
+        min-width: 0;
+        border: 1px solid #dbe2ea;
+        background: white;
+        border-radius: 9px;
+        font-size: 13px;
+    }
+
+    .venues-page .form-control:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .venues-page textarea {
+        resize: vertical;
+    }
+
+    .hire-field-help {
+        font-size: 11px;
+        color: #64748b;
+        margin-top: 7px;
     }
 
     .price-box {
-        background: #e8f5e9;
-        padding: 12px;
-        border-radius: 8px;
-        color: #198754;
-        font-weight: bold;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 20px;
     }
 
+    .price-box-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #166534;
+        margin-bottom: 7px;
+    }
+
+    .estimated-price {
+        display: block;
+        font-size: 24px;
+        font-weight: 750;
+        color: #15803d;
+        overflow-wrap: anywhere;
+    }
+
+    .price-box-note {
+        font-size: 11px;
+        line-height: 1.7;
+        color: #166534;
+        margin-top: 7px;
+    }
+
+    .venue-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 14px 18px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .venue-button:hover {
+        background: linear-gradient(135deg, #1d4ed8, #4338ca);
+        color: white;
+    }
+
+    .venue-request-note {
+        text-align: center;
+        font-size: 11px;
+        color: #64748b;
+        line-height: 1.7;
+        margin-top: 12px;
+        margin-bottom: 0;
+    }
+
+    .venue-empty {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 55px 25px;
+        text-align: center;
+    }
+
+    .venue-empty h4 {
+        font-weight: 700;
+        margin-top: 18px;
+        margin-bottom: 10px;
+    }
+
+    .venue-empty p {
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .venues-back {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #475569;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .venues-back:hover {
+        color: #4338ca;
+    }
+
+    @media (max-width: 576px) {
+        .venues-hero {
+            padding: 35px 20px;
+        }
+
+        .venues-hero h1 {
+            font-size: 29px;
+        }
+
+        .venues-hero p {
+            font-size: 14px;
+        }
+
+        .venue-body {
+            padding: 18px;
+        }
+
+        .hire-form {
+            padding: 16px;
+        }
+
+        .venue-image {
+            height: 200px;
+        }
+
+        .venue-price {
+            font-size: 24px;
+        }
+    }
 </style>
 
-<!-- Page Heading -->
 
-<div class="text-center mb-5">
+<div class="venues-page">
 
-    <h1 class="fw-bold">Private Venue Hire</h1>
+    <a href="/" class="venues-back">
+        &larr; Back to Events
+    </a>
 
-    <p class="text-muted">
-        Find the perfect venue for your private event.
+
+    <!-- Page Header -->
+
+    <section class="venues-hero">
+
+        <span class="venues-hero-label">
+            EVENTSPHERE / PRIVATE VENUES
+        </span>
+
+        <h1>Find Your Perfect Venue</h1>
+
+        <p>
+            Make your next occasion unforgettable.
+            Explore our venues for private celebrations,
+            meetings, gatherings and special events.
+        </p>
+
+    </section>
+
+
+    <!-- Available Venues -->
+
+    <h2 class="venues-section-title">
+        Private Venue Hire
+    </h2>
+
+    <p class="venues-section-subtitle">
+        Explore our venues, compare hourly rates and
+        request your preferred date and time.
     </p>
 
-</div>
 
-<!-- Available Venues -->
+    <div class="row g-4">
 
-<div class="row g-4">
+        {% for venue in venues %}
 
-    {% for venue in venues %}
+        <div class="col-12 col-md-6 col-lg-4">
 
-    <div class="col-12 col-md-6 col-lg-4">
+            <div class="venue-card">
 
-        <div class="card venue-card shadow-sm h-100">
+                <!-- Venue Image -->
 
-            <!-- Venue Image -->
+                <div class="venue-image-wrapper">
 
-            {% if venue.image %}
+                    {% if venue.image %}
 
-            <img
-                src="{{ venue.image }}"
-                class="venue-image"
-                alt="{{ venue.name }}">
+                    <img src="{{ venue.image }}"
+                         class="venue-image"
+                         alt="{{ venue.name }}"
+                         loading="lazy">
 
-            {% else %}
+                    {% else %}
 
-            <div class="venue-image bg-secondary-subtle
-                        d-flex align-items-center
-                        justify-content-center">
+                    <div class="venue-image venue-placeholder">
 
-                <span class="text-muted">
-                    No image available
-                </span>
+                        <svg width="60" height="60"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.3"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
 
-            </div>
+                            <rect x="4" y="3"
+                                  width="16" height="18" rx="2"/>
 
-            {% endif %}
+                            <path d="M9 21v-5h6v5
+                                     M8 7h2M14 7h2
+                                     M8 11h2M14 11h2"/>
 
-            <div class="card-body">
+                        </svg>
 
-                <span class="badge bg-success mb-2">
-                    Open for Private Hire
-                </span>
-
-                <h3 class="fw-bold">
-                    {{ venue.name }}
-                </h3>
-
-                <p class="text-muted">
-                    Location: {{ venue.location }}
-                </p>
-
-                <p>
-                    {{ venue.description }}
-                </p>
-
-                <p>
-                    <strong>Capacity:</strong>
-                    {{ venue.capacity }} guests
-                </p>
-
-                <p class="venue-price">
-
-                    LKR {{ "%.2f"|format(venue.hourly_rate) }}
-
-                    <small class="text-muted fs-6">
-                        / hour
-                    </small>
-
-                </p>
-
-                <hr>
-
-                {% if current_role == "attendee" %}
-
-                <!-- Private Hire Form -->
-
-                <form
-                    method="post"
-                    action="/hire"
-                    class="hire-form"
-                    data-rate="{{ venue.hourly_rate }}">
-
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{ csrf_token }}">
-
-                    <input
-                        type="hidden"
-                        name="venue_id"
-                        value="{{ venue.id }}">
-
-                    <h5 class="mb-3">
-                        Request Venue Hire
-                    </h5>
-
-                    <!-- Start Time -->
-
-                    <label class="form-label">
-                        Start Date and Time
-                    </label>
-
-                    <input
-                        type="datetime-local"
-                        name="start_time"
-                        class="form-control mb-3 start-time"
-                        required>
-
-                    <!-- End Time -->
-
-                    <label class="form-label">
-                        End Date and Time
-                    </label>
-
-                    <input
-                        type="datetime-local"
-                        name="end_time"
-                        class="form-control mb-3 end-time"
-                        required>
-
-                    <!-- Purpose -->
-
-                    <label class="form-label">
-                        Purpose of Hire
-                    </label>
-
-                    <textarea
-                        name="purpose"
-                        class="form-control mb-3"
-                        rows="3"
-                        placeholder="Birthday, farewell, club meeting..."
-                        required></textarea>
-
-                    <!-- Number of Guests -->
-
-                    <label class="form-label">
-                        Number of Guests
-                    </label>
-
-                    <input
-                        type="number"
-                        name="guest_count"
-                        class="form-control mb-3"
-                        min="1"
-                        max="{{ venue.capacity }}"
-                        placeholder="Enter guest count"
-                        required>
-
-                    <!-- Estimated Price -->
-
-                    <div class="price-box mb-3">
-
-                        Estimated Price:
-
-                        <span class="estimated-price">
-                            LKR 0.00
-                        </span>
+                        No image available
 
                     </div>
 
-                    <button
-                        type="submit"
-                        class="btn btn-primary w-100">
+                    {% endif %}
 
-                        Request Venue
 
-                    </button>
+                    <span class="venue-availability">
 
-                </form>
+                        <span class="venue-availability-dot"></span>
 
-                {% elif not current_user_id %}
+                        Open for Private Hire
 
-                <a
-                    href="/login"
-                    class="btn btn-primary w-100">
-
-                    Login to Hire Venue
-
-                </a>
-
-                {% else %}
-
-                <div class="alert alert-info">
-
-                    Only attendees can request
-                    private venue hire.
+                    </span>
 
                 </div>
 
-                {% endif %}
+
+                <!-- Venue Information -->
+
+                <div class="venue-body">
+
+                    <h3 class="venue-name">
+                        {{ venue.name }}
+                    </h3>
+
+
+                    <div class="venue-location">
+
+                        <svg width="17" height="17"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="#6366f1"
+                             stroke-width="1.8"
+                             style="flex-shrink: 0;">
+
+                            <path d="M20 10c0 6-8 11-8 11
+                                     S4 16 4 10a8 8 0 1 1 16 0z"/>
+
+                            <circle cx="12" cy="10" r="3"/>
+
+                        </svg>
+
+                        {{ venue.location }}
+
+                    </div>
+
+
+                    <p class="venue-description">
+                        {{ venue.description }}
+                    </p>
+
+
+                    <!-- Venue Capacity -->
+
+                    <div class="venue-capacity">
+
+                        <div class="venue-capacity-icon">
+
+                            <svg width="21" height="21"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round">
+
+                                <circle cx="9" cy="7" r="3"/>
+
+                                <path d="M3 21v-3a6 6 0 0 1 12 0v3
+                                         M16 4a3 3 0 0 1 0 6
+                                         M17 14a5 5 0 0 1 4 5v2"/>
+
+                            </svg>
+
+                        </div>
+
+                        <div>
+
+                            <div class="venue-capacity-label">
+                                Maximum Capacity
+                            </div>
+
+                            <div class="venue-capacity-value">
+                                {{ venue.capacity }} guests
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Hourly Rate -->
+
+                    <div class="venue-price-label">
+                        Hourly Rental Rate
+                    </div>
+
+                    <div class="venue-price">
+
+                        LKR {{ "%.2f"|format(venue.hourly_rate) }}
+
+                        <small>/ hour</small>
+
+                    </div>
+
+
+                    {% if current_role == "attendee" %}
+
+                    <!-- Private Venue Hire Form -->
+
+                    <form method="post"
+                          action="/hire"
+                          class="hire-form"
+                          data-rate="{{ venue.hourly_rate }}">
+
+                        <input type="hidden"
+                               name="csrf_token"
+                               value="{{ csrf_token }}">
+
+                        <input type="hidden"
+                               name="venue_id"
+                               value="{{ venue.id }}">
+
+
+                        <h5 class="hire-form-title">
+                            Request Venue Hire
+                        </h5>
+
+                        <p class="hire-form-subtitle">
+                            Complete the details below to submit
+                            your venue hire request.
+                        </p>
+
+
+                        <!-- Start Time -->
+
+                        <div class="hire-field">
+
+                            <label class="form-label"
+                                   for="start-{{ venue.id }}">
+
+                                Start Date and Time
+
+                            </label>
+
+                            <input type="datetime-local"
+                                   id="start-{{ venue.id }}"
+                                   name="start_time"
+                                   class="form-control start-time"
+                                   required>
+
+                        </div>
+
+
+                        <!-- End Time -->
+
+                        <div class="hire-field">
+
+                            <label class="form-label"
+                                   for="end-{{ venue.id }}">
+
+                                End Date and Time
+
+                            </label>
+
+                            <input type="datetime-local"
+                                   id="end-{{ venue.id }}"
+                                   name="end_time"
+                                   class="form-control end-time"
+                                   required>
+
+                            <div class="hire-field-help">
+                                Times are entered in your local time zone.
+                            </div>
+
+                        </div>
+
+
+                        <!-- Purpose -->
+
+                        <div class="hire-field">
+
+                            <label class="form-label"
+                                   for="purpose-{{ venue.id }}">
+
+                                Purpose of Hire
+
+                            </label>
+
+                            <textarea name="purpose"
+                                      id="purpose-{{ venue.id }}"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Birthday, farewell, club meeting..."
+                                      required></textarea>
+
+                        </div>
+
+
+                        <!-- Number of Guests -->
+
+                        <div class="hire-field">
+
+                            <label class="form-label"
+                                   for="guests-{{ venue.id }}">
+
+                                Number of Guests
+
+                            </label>
+
+                            <input type="number"
+                                   id="guests-{{ venue.id }}"
+                                   name="guest_count"
+                                   class="form-control"
+                                   min="1"
+                                   max="{{ venue.capacity }}"
+                                   placeholder="Enter guest count"
+                                   required>
+
+                            <div class="hire-field-help">
+
+                                Maximum {{ venue.capacity }} guests.
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Estimated Price -->
+
+                        <div class="price-box">
+
+                            <div class="price-box-label">
+                                Estimated Rental Price
+                            </div>
+
+                            <span class="estimated-price"
+                                  aria-live="polite">
+
+                                LKR 0.00
+
+                            </span>
+
+                            <div class="price-box-note">
+
+                                Calculated automatically based
+                                on the selected rental duration.
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Submit Request -->
+
+                        <button type="submit"
+                                class="venue-button">
+
+                            Request Venue &rarr;
+
+                        </button>
+
+                        <p class="venue-request-note">
+
+                            Your request will be reviewed by the
+                            EventSphere venue management system.
+
+                        </p>
+
+                    </form>
+
+
+                    {% elif not current_user_id %}
+
+                    <a href="/login" class="venue-button">
+
+                        Login to Hire Venue &rarr;
+
+                    </a>
+
+                    {% else %}
+
+                    <div class="alert alert-info mb-0">
+
+                        Only attendees can request
+                        private venue hire.
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
 
             </div>
 
         </div>
 
-    </div>
 
-    {% else %}
+        {% else %}
 
-    <!-- No Venues Available -->
+        <!-- No Venues Available -->
 
-    <div class="col-12">
+        <div class="col-12">
 
-        <div class="alert alert-info text-center">
+            <div class="venue-empty">
 
-            No venues are currently open
-            for private hire.
+                <svg width="55" height="55"
+                     viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="#94a3b8"
+                     stroke-width="1.4"
+                     stroke-linecap="round">
+
+                    <rect x="4" y="3"
+                          width="16" height="18" rx="2"/>
+
+                    <path d="M9 21v-5h6v5
+                             M8 7h2M14 7h2
+                             M8 11h2M14 11h2"/>
+
+                </svg>
+
+                <h4>No Venues Available</h4>
+
+                <p>
+
+                    No venues are currently open
+                    for private hire. Please check again later.
+
+                </p>
+
+                <a href="/" class="btn btn-outline-primary">
+
+                    Browse Events
+
+                </a>
+
+            </div>
 
         </div>
 
+        {% endfor %}
+
     </div>
 
-    {% endfor %}
-
 </div>
+
 
 <!-- JavaScript -->
 
@@ -283,6 +845,7 @@
 
         const hourlyRate = Number(form.dataset.rate);
 
+
         // Convert a date into local input format
 
         function localDateTime(date) {
@@ -295,11 +858,13 @@
 
         }
 
+
         // Prevent selecting past dates
 
         start.min = localDateTime(new Date());
 
         end.min = start.min;
+
 
         // Calculate estimated price
 
@@ -338,6 +903,7 @@
 
         }
 
+
         start.addEventListener("change", function() {
 
             end.min = start.value;
@@ -348,7 +914,8 @@
 
         end.addEventListener("change", calculatePrice);
 
-        // Validate and submit UTC dates to FastAPI
+
+        // Validate dates before submitting
 
         form.addEventListener("submit", function(event) {
 
@@ -377,6 +944,9 @@
             }
 
         });
+
+
+        // Convert local dates to UTC before sending to FastAPI
 
         form.addEventListener("formdata", function(event) {
 
