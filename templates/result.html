@@ -3,105 +3,565 @@
 
 {% block content %}
 
-<h1 class="mb-4">Request Result</h1>
+<style>
+    .result-page {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px 0 40px;
+        color: #0f172a;
+    }
 
-<div class="card shadow-sm">
+    .result-hero {
+        background: linear-gradient(135deg, #172554, #4338ca);
+        border-radius: 22px;
+        padding: 35px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.15);
+    }
 
-    <div class="card-body">
+    .result-hero-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        color: #c7d2fe;
+        margin-bottom: 12px;
+    }
 
-        <!-- Agent Response Status -->
+    .result-hero h1 {
+        font-size: 32px;
+        font-weight: 750;
+        color: white;
+        margin-bottom: 12px;
+    }
 
-        {% if result.performative == "AGREE" %}
+    .result-hero p {
+        color: #e0e7ff;
+        font-size: 14px;
+        line-height: 1.8;
+        margin: 0;
+    }
 
-        <div class="alert alert-success">
+    .result-panel {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 28px;
+        margin-bottom: 24px;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+    }
 
-            <h4>Request Accepted</h4>
+    .result-status {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border: 1px solid;
+    }
 
-            Your request was processed successfully.
+    .result-success {
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+        color: #166534;
+    }
+
+    .result-danger {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #b91c1c;
+    }
+
+    .result-warning {
+        background: #fffbeb;
+        border-color: #fde68a;
+        color: #92400e;
+    }
+
+    .result-info {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1d4ed8;
+    }
+
+    .result-status-icon {
+        width: 65px;
+        height: 65px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+    }
+
+    .result-status h2 {
+        font-size: 23px;
+        font-weight: 750;
+        margin-bottom: 8px;
+        color: inherit;
+    }
+
+    .result-status p {
+        font-size: 14px;
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    .result-section-title {
+        font-size: 21px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .result-section-subtitle {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 22px;
+    }
+
+    .result-detail {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 18px;
+        height: 100%;
+    }
+
+    .result-detail-label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+
+    .result-detail-value {
+        font-size: 15px;
+        font-weight: 650;
+        color: #1e293b;
+        overflow-wrap: anywhere;
+    }
+
+    .result-conversation {
+        font-family: monospace;
+        color: #4338ca;
+        font-size: 13px;
+    }
+
+    .result-message {
+        padding: 20px;
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
+        border-left: 4px solid #4f46e5;
+        border-radius: 12px;
+        margin-top: 20px;
+        color: #3730a3;
+        line-height: 1.8;
+        overflow-wrap: anywhere;
+    }
+
+    .result-reason {
+        background: #fff7ed;
+        border-color: #fed7aa;
+        border-left-color: #ea580c;
+        color: #9a3412;
+    }
+
+    .result-amount {
+        font-size: 23px;
+        font-weight: 750;
+        color: #4338ca;
+    }
+
+    .result-alternative {
+        height: 100%;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 20px;
+        transition: all 0.2s ease;
+        overflow-wrap: anywhere;
+    }
+
+    .result-alternative:hover {
+        background: #eef2ff;
+        border-color: #a5b4fc;
+    }
+
+    .result-alternative-number {
+        display: inline-block;
+        background: #e0e7ff;
+        color: #4338ca;
+        padding: 6px 13px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .result-alternative p {
+        font-size: 13px;
+        line-height: 1.8;
+        color: #475569;
+        margin-bottom: 10px;
+    }
+
+    .result-json-details {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .result-json-details summary {
+        background: #f8fafc;
+        padding: 18px;
+        cursor: pointer;
+        color: #4338ca;
+        font-size: 14px;
+        font-weight: 650;
+    }
+
+    .result-json-details summary:hover {
+        background: #eef2ff;
+    }
+
+    .result-json {
+        background: #0f172a;
+        color: #a5f3fc;
+        padding: 22px;
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        max-height: 450px;
+        overflow: auto;
+    }
+
+    .result-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 13px 22px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .result-button:hover {
+        background: linear-gradient(135deg, #1d4ed8, #4338ca);
+        color: white;
+    }
+
+    .result-outline-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 22px;
+        border: 1px solid #c7d2fe;
+        border-radius: 10px;
+        background: white;
+        color: #4338ca;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .result-outline-button:hover {
+        background: #eef2ff;
+        border-color: #6366f1;
+        color: #3730a3;
+    }
+
+    @media (max-width: 576px) {
+        .result-hero {
+            padding: 28px 22px;
+        }
+
+        .result-hero h1 {
+            font-size: 26px;
+        }
+
+        .result-panel {
+            padding: 18px;
+        }
+
+        .result-status {
+            padding: 18px;
+            gap: 14px;
+        }
+
+        .result-status-icon {
+            width: 45px;
+            height: 45px;
+        }
+
+        .result-status h2 {
+            font-size: 19px;
+        }
+
+        .result-detail {
+            padding: 15px;
+        }
+
+        .result-amount {
+            font-size: 20px;
+        }
+
+        .result-navigation a {
+            width: 100%;
+        }
+    }
+</style>
+
+{% macro detail(label, value, money=false, conversation=false) %}
+
+<div class="col-12 col-sm-6">
+
+    <div class="result-detail">
+
+        <div class="result-detail-label">
+            {{ label }}
+        </div>
+
+        <div class="result-detail-value
+            {% if money %}result-amount{% endif %}
+            {% if conversation %}result-conversation{% endif %}">
+
+            {% if money %}LKR {% endif %}{{ value }}
 
         </div>
 
-        {% elif result.performative == "REFUSE" %}
+    </div>
 
-        <div class="alert alert-danger">
+</div>
 
-            <h4>Request Rejected</h4>
+{% endmacro %}
 
-            Your request could not be accepted.
 
+<div class="result-page">
+
+    <!-- Page Header -->
+
+    <div class="result-hero">
+
+        <div class="result-hero-label">
+            EVENTSPHERE / REQUEST STATUS
         </div>
 
-        {% elif result.performative == "PROPOSE" %}
-
-        <div class="alert alert-warning">
-
-            <h4>Alternative Suggested</h4>
-
-            The agent has suggested an alternative solution.
-
-        </div>
-
-        {% elif result.performative == "FAILURE" %}
-
-        <div class="alert alert-danger">
-
-            <h4>Request Failed</h4>
-
-            An error occurred while processing your request.
-
-        </div>
-
-        {% else %}
-
-        <div class="alert alert-info">
-
-            <h4>Agent Response</h4>
-
-        </div>
-
-        {% endif %}
-
-
-        <!-- Agent Information -->
-
-        <h5>Response Details</h5>
+        <h1>Request Result</h1>
 
         <p>
-
-            <strong>Agent:</strong>
-
-            {{ result.sender }}
-
+            View the outcome of your request and the response
+            received from the EventSphere agent system.
         </p>
 
-        <p>
+    </div>
 
-            <strong>Performative:</strong>
 
-            {{ result.performative }}
+    <!-- Agent Response Status -->
 
+    {% if result.performative == "AGREE" %}
+
+        {% set status_class = "result-success" %}
+        {% set status_title = "Request Accepted" %}
+        {% set status_description = "Your request was processed successfully." %}
+
+    {% elif result.performative == "REFUSE" %}
+
+        {% set status_class = "result-danger" %}
+        {% set status_title = "Request Rejected" %}
+        {% set status_description = "Your request could not be accepted." %}
+
+    {% elif result.performative == "PROPOSE" %}
+
+        {% set status_class = "result-warning" %}
+        {% set status_title = "Alternative Suggested" %}
+        {% set status_description = "The agent has suggested an alternative solution." %}
+
+    {% elif result.performative == "FAILURE" %}
+
+        {% set status_class = "result-danger" %}
+        {% set status_title = "Request Failed" %}
+        {% set status_description = "An error occurred while processing your request." %}
+
+    {% else %}
+
+        {% set status_class = "result-info" %}
+        {% set status_title = "Agent Response" %}
+        {% set status_description = "A response has been received from the agent." %}
+
+    {% endif %}
+
+
+    <div class="result-status {{ status_class }}">
+
+        <div class="result-status-icon">
+
+            <svg width="32" height="32"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+
+                {% if result.performative == "AGREE" %}
+
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="m8 12 3 3 5-6"/>
+
+                {% elif result.performative in ["REFUSE", "FAILURE"] %}
+
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="m9 9 6 6M15 9l-6 6"/>
+
+                {% elif result.performative == "PROPOSE" %}
+
+                    <path d="M10.3 4.5 2.5 18
+                             a2 2 0 0 0 1.7 3h15.6
+                             a2 2 0 0 0 1.7-3L13.7 4.5
+                             a2 2 0 0 0-3.4 0z"/>
+
+                    <path d="M12 9v4M12 17h.01"/>
+
+                {% else %}
+
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M12 11v5M12 7h.01"/>
+
+                {% endif %}
+
+            </svg>
+
+        </div>
+
+        <div>
+
+            <h2>{{ status_title }}</h2>
+
+            <p>{{ status_description }}</p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Response Details -->
+
+    <div class="result-panel">
+
+        <h2 class="result-section-title">
+            Response Details
+        </h2>
+
+        <p class="result-section-subtitle">
+            Information returned by the responsible software agent.
         </p>
 
-        <p class="text-break">
+        <div class="row g-3">
 
-            <strong>Conversation ID:</strong>
+            {{ detail("Responsible Agent", result.sender) }}
 
-            {{ result.conversation_id }}
+            {{ detail("Performative", result.performative) }}
 
-        </p>
+            <div class="col-12">
+
+                <div class="result-detail">
+
+                    <div class="result-detail-label">
+                        Conversation ID
+                    </div>
+
+                    <div class="result-detail-value result-conversation">
+
+                        {{ result.conversation_id }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Booking Information -->
+
+            {% if result.content.booking_id is defined %}
+
+                {{ detail("Booking ID", result.content.booking_id) }}
+
+            {% endif %}
+
+
+            {% if result.content.payment_reference is defined %}
+
+                {{ detail("Payment Reference", result.content.payment_reference) }}
+
+            {% endif %}
+
+
+            <!-- Venue Hire Information -->
+
+            {% if result.content.hire_id is defined %}
+
+                {{ detail("Hire Request ID", result.content.hire_id) }}
+
+            {% endif %}
+
+
+            {% if result.content.status is defined %}
+
+                {{ detail("Status", result.content.status) }}
+
+            {% endif %}
+
+
+            {% if result.content.price is defined %}
+
+                {{ detail("Price", result.content.price, true) }}
+
+            {% endif %}
+
+
+            {% if result.content.total is defined %}
+
+                {{ detail("Total Amount", result.content.total, true) }}
+
+            {% endif %}
+
+
+            {% if result.content.refund is defined %}
+
+                {{ detail("Refund Amount", result.content.refund, true) }}
+
+            {% endif %}
+
+        </div>
 
 
         <!-- Agent Message -->
 
         {% if result.content.message %}
 
-        <p>
+        <div class="result-message">
 
-            <strong>Message:</strong>
+            <strong>Agent Message</strong>
 
-            {{ result.content.message }}
+            <div class="mt-2">
 
-        </p>
+                {{ result.content.message }}
+
+            </div>
+
+        </div>
 
         {% endif %}
 
@@ -110,165 +570,107 @@
 
         {% if result.content.reason %}
 
-        <p>
+        <div class="result-message result-reason">
 
-            <strong>Reason:</strong>
+            <strong>Reason</strong>
 
-            {{ result.content.reason }}
+            <div class="mt-2">
 
-        </p>
+                {{ result.content.reason }}
 
-        {% endif %}
-
-
-        <!-- Booking Information -->
-
-        {% if result.content.booking_id is defined %}
-
-        <p>
-
-            <strong>Booking ID:</strong>
-
-            {{ result.content.booking_id }}
-
-        </p>
-
-        {% endif %}
-
-
-        {% if result.content.payment_reference is defined %}
-
-        <p>
-
-            <strong>Payment Reference:</strong>
-
-            {{ result.content.payment_reference }}
-
-        </p>
-
-        {% endif %}
-
-
-        <!-- Venue Hire Information -->
-
-        {% if result.content.hire_id is defined %}
-
-        <p>
-
-            <strong>Hire Request ID:</strong>
-
-            {{ result.content.hire_id }}
-
-        </p>
-
-        {% endif %}
-
-
-        {% if result.content.status is defined %}
-
-        <p>
-
-            <strong>Status:</strong>
-
-            {{ result.content.status }}
-
-        </p>
-
-        {% endif %}
-
-
-        {% if result.content.price is defined %}
-
-        <p>
-
-            <strong>Price:</strong>
-
-            LKR {{ result.content.price }}
-
-        </p>
-
-        {% endif %}
-
-
-        {% if result.content.total is defined %}
-
-        <p>
-
-            <strong>Total Amount:</strong>
-
-            LKR {{ result.content.total }}
-
-        </p>
-
-        {% endif %}
-
-
-        {% if result.content.refund is defined %}
-
-        <p>
-
-            <strong>Refund Amount:</strong>
-
-            LKR {{ result.content.refund }}
-
-        </p>
-
-        {% endif %}
-
-
-        <!-- Alternative Time Slots -->
-
-        {% if result.content.alternatives %}
-
-        <hr>
-
-        <h5>Suggested Alternatives</h5>
-
-        {% for alternative in result.content.alternatives %}
-
-        <div class="border rounded p-3 mb-3">
-
-            {% if alternative is mapping %}
-
-                {% for key, value in alternative.items() %}
-
-                <p class="mb-1">
-
-                    <strong>
-                        {{ key|replace("_", " ")|title }}:
-                    </strong>
-
-                    {{ value }}
-
-                </p>
-
-                {% endfor %}
-
-            {% else %}
-
-                {{ alternative }}
-
-            {% endif %}
+            </div>
 
         </div>
 
-        {% endfor %}
+        {% endif %}
 
-        <a href="/venues"
-           class="btn btn-outline-primary mb-3">
+    </div>
 
-            Choose Another Time Slot
+
+    <!-- Alternative Time Slots -->
+
+    {% if result.content.alternatives %}
+
+    <div class="result-panel">
+
+        <h2 class="result-section-title">
+            Suggested Alternatives
+        </h2>
+
+        <p class="result-section-subtitle">
+            Explore the alternative options suggested by the agent.
+        </p>
+
+        <div class="row g-3 mb-4">
+
+            {% for alternative in result.content.alternatives %}
+
+            <div class="col-12 col-md-6">
+
+                <div class="result-alternative">
+
+                    <span class="result-alternative-number">
+
+                        Option {{ loop.index }}
+
+                    </span>
+
+                    {% if alternative is mapping %}
+
+                        {% for key, value in alternative.items() %}
+
+                        <p>
+
+                            <strong>
+
+                                {{ key|replace("_", " ")|title }}:
+
+                            </strong>
+
+                            {{ value }}
+
+                        </p>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <p>{{ alternative }}</p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        <a href="/venues" class="result-button">
+
+            Choose Another Time Slot &rarr;
 
         </a>
 
-        {% endif %}
+    </div>
+
+    {% endif %}
 
 
-        <!-- Structured Agent Message -->
+    <!-- Structured Agent Message -->
 
-        <hr>
+    <div class="result-panel">
 
-        <details class="mb-4">
+        <h2 class="result-section-title">
+            Structured Agent Message
+        </h2>
+
+        <p class="result-section-subtitle">
+            Inspect the complete JSON response generated by the agent.
+        </p>
+
+        <details class="result-json-details">
 
             <summary>
 
@@ -276,59 +678,72 @@
 
             </summary>
 
-            <pre class="bg-light border rounded p-3 mt-3"
-                 style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ result | tojson(indent=4) }}</pre>
+            <pre class="result-json">{{ result | tojson(indent=4) }}</pre>
 
         </details>
 
+    </div>
 
-        <!-- Navigation Buttons -->
 
-        <div class="d-flex flex-wrap gap-2">
+    <!-- Navigation Buttons -->
 
-            <a href="/" class="btn btn-primary">
+    <div class="result-navigation d-flex flex-wrap gap-3">
 
-                Home
+        <a href="/" class="result-button">
 
-            </a>
+            <svg width="18" height="18"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
 
-            {% if current_role == "attendee" %}
+                <path d="m3 10 9-7 9 7v10H3z"/>
 
-            <a href="/bookings"
-               class="btn btn-outline-primary">
+                <path d="M9 20v-7h6v7"/>
 
-                My Bookings
+            </svg>
 
-            </a>
+            Home
 
-            <a href="/venues"
-               class="btn btn-outline-secondary">
+        </a>
 
-                Browse Venues
+        {% if current_role == "attendee" %}
 
-            </a>
+        <a href="/bookings"
+           class="result-outline-button">
 
-            {% elif current_role == "admin" %}
+            My Bookings
 
-            <a href="/admin"
-               class="btn btn-outline-primary">
+        </a>
 
-                Admin Dashboard
+        <a href="/venues"
+           class="result-outline-button">
 
-            </a>
+            Browse Venues
 
-            {% elif current_role == "staff" %}
+        </a>
 
-            <a href="/scanner"
-               class="btn btn-outline-primary">
+        {% elif current_role == "admin" %}
 
-                Back to Scanner
+        <a href="/admin"
+           class="result-outline-button">
 
-            </a>
+            Admin Dashboard
 
-            {% endif %}
+        </a>
 
-        </div>
+        {% elif current_role == "staff" %}
+
+        <a href="/scanner"
+           class="result-outline-button">
+
+            Back to Scanner
+
+        </a>
+
+        {% endif %}
 
     </div>
 
