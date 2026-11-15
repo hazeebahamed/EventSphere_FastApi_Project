@@ -3,128 +3,601 @@
 
 {% block content %}
 
-<h1 class="mb-4">My Notifications</h1>
+<style>
+    .notifications-page {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px 0 40px;
+        color: #0f172a;
+    }
 
-<p class="text-muted">
+    .notifications-hero {
+        background: linear-gradient(135deg, #172554, #4338ca);
+        border-radius: 22px;
+        padding: 35px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.15);
+    }
 
-    View your booking updates, waitlist offers
-    and venue hire notifications.
+    .notifications-hero-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        color: #c7d2fe;
+        margin-bottom: 12px;
+    }
 
-</p>
+    .notifications-hero h1 {
+        font-size: 32px;
+        font-weight: 750;
+        color: white;
+        margin-bottom: 12px;
+    }
 
-<!-- Notification List -->
+    .notifications-hero p {
+        color: #e0e7ff;
+        font-size: 14px;
+        line-height: 1.8;
+        margin: 0;
+    }
 
-{% for notification in notifications %}
+    .notification-stat {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 22px;
+        height: 100%;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.04);
+    }
 
-<div class="card shadow-sm mb-3
-    {% if not notification.is_read %}
-        border-primary
-    {% endif %}">
+    .notification-stat-label {
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
 
-    <div class="card-body">
+    .notification-stat-value {
+        font-size: 30px;
+        font-weight: 750;
+        color: #4338ca;
+    }
 
-        <!-- Notification Status -->
+    .notification-section-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
 
-        {% if notification.is_read %}
+    .notification-section-subtitle {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 22px;
+    }
 
-        <span class="badge bg-secondary mb-2">
+    .notification-card {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+        transition: all 0.2s ease;
+    }
 
-            Read
+    .notification-card:hover {
+        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.08);
+    }
 
-        </span>
+    .notification-unread {
+        background: #f5f7ff;
+        border: 1px solid #c7d2fe;
+        border-left: 4px solid #4f46e5;
+    }
 
-        {% else %}
+    .notification-icon {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f5f9;
+        border-radius: 14px;
+        color: #64748b;
+    }
 
-        <span class="badge bg-primary mb-2">
+    .notification-unread .notification-icon {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
 
-            New
+    .notification-content {
+        flex: 1;
+        min-width: 0;
+    }
 
-        </span>
+    .notification-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
 
-        {% endif %}
+    .notification-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1e293b;
+    }
 
+    .notification-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 30px;
+        font-size: 11px;
+        font-weight: 600;
+    }
 
-        <!-- Notification Message -->
+    .notification-status-new {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
 
-        <p class="mb-2">
+    .notification-status-read {
+        background: #f1f5f9;
+        color: #64748b;
+    }
 
-            {{ notification.message }}
+    .notification-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #4f46e5;
+    }
 
+    .notification-message {
+        font-size: 15px;
+        color: #334155;
+        line-height: 1.8;
+        margin-bottom: 12px;
+        overflow-wrap: anywhere;
+    }
+
+    .notification-date {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #64748b;
+        font-size: 12px;
+        margin-bottom: 15px;
+    }
+
+    .notification-read-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: white;
+        border: 1px solid #c7d2fe;
+        border-radius: 8px;
+        padding: 8px 14px;
+        color: #4338ca;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .notification-read-button:hover {
+        background: #4338ca;
+        border-color: #4338ca;
+        color: white;
+    }
+
+    .notification-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        border-radius: 10px;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .notification-button:hover {
+        background: linear-gradient(135deg, #1d4ed8, #4338ca);
+        color: white;
+    }
+
+    .notification-outline-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border: 1px solid #c7d2fe;
+        border-radius: 10px;
+        background: white;
+        color: #4338ca;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .notification-outline-button:hover {
+        background: #eef2ff;
+        color: #3730a3;
+    }
+
+    .notification-empty {
+        text-align: center;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 55px 25px;
+    }
+
+    .notification-empty-icon {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eef2ff;
+        color: #6366f1;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+    }
+
+    .notification-empty h4 {
+        font-size: 21px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .notification-empty p {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 0;
+    }
+
+    @media (max-width: 576px) {
+        .notifications-hero {
+            padding: 28px 22px;
+        }
+
+        .notifications-hero h1 {
+            font-size: 26px;
+        }
+
+        .notification-card {
+            padding: 18px;
+            gap: 12px;
+        }
+
+        .notification-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+        }
+
+        .notification-stat {
+            padding: 15px;
+        }
+
+        .notification-stat-value {
+            font-size: 25px;
+        }
+
+        .notification-stat-label {
+            font-size: 12px;
+        }
+
+        .notification-message {
+            font-size: 14px;
+        }
+    }
+</style>
+
+<div class="notifications-page">
+
+    <!-- Notification Header -->
+
+    <div class="notifications-hero">
+
+        <div class="notifications-hero-label">
+            EVENTSPHERE / MY ACCOUNT
+        </div>
+
+        <h1>My Notifications</h1>
+
+        <p>
+            Stay up to date with your booking confirmations,
+            waitlist offers, cancellations and private venue
+            hire notifications.
         </p>
 
+    </div>
 
-        <!-- Notification Date -->
+    <!-- Notification Statistics -->
 
-        <p class="text-muted small">
+    {% set unread_count = notifications
+        |rejectattr("is_read")|list|length %}
 
-            {{ notification.created_at.strftime(
-                "%Y-%m-%d %H:%M"
-            ) }} UTC
+    {% set read_count = notifications
+        |selectattr("is_read")|list|length %}
 
-        </p>
+    <div class="row g-3 mb-4">
 
+        <div class="col-4">
 
-        <!-- Mark as Read -->
+            <div class="notification-stat">
 
+                <div class="notification-stat-label">
+                    Total Notifications
+                </div>
+
+                <div class="notification-stat-value">
+                    {{ notifications|length }}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-4">
+
+            <div class="notification-stat">
+
+                <div class="notification-stat-label">
+                    Unread Messages
+                </div>
+
+                <div class="notification-stat-value"
+                     style="color: #2563eb;">
+
+                    {{ unread_count }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-4">
+
+            <div class="notification-stat">
+
+                <div class="notification-stat-label">
+                    Read Messages
+                </div>
+
+                <div class="notification-stat-value"
+                     style="color: #059669;">
+
+                    {{ read_count }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Notification List -->
+
+    <h2 class="notification-section-title">
+        Notification Inbox
+    </h2>
+
+    <p class="notification-section-subtitle">
+        View messages and updates related to your activity.
+    </p>
+
+    {% for notification in notifications %}
+
+    <div class="notification-card
         {% if not notification.is_read %}
+            notification-unread
+        {% endif %}">
 
-        <form
-            method="post"
-            action="/notifications/{{ notification.id }}/read">
+        <!-- Notification Icon -->
 
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="{{ csrf_token }}">
+        <div class="notification-icon">
 
-            <button
-                type="submit"
-                class="btn btn-outline-primary btn-sm">
+            <svg width="23" height="23"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
 
-                Mark as Read
+                <path d="M18 8a6 6 0 0 0-12 0
+                         c0 7-3 7-3 9h18
+                         c0-2-3-2-3-9"/>
 
-            </button>
+                <path d="M10 21h4"/>
 
-        </form>
+            </svg>
+
+        </div>
+
+        <div class="notification-content">
+
+            <!-- Notification Status -->
+
+            <div class="notification-header">
+
+                <span class="notification-title">
+                    EventSphere Update
+                </span>
+
+                {% if notification.is_read %}
+
+                <span class="notification-status
+                             notification-status-read">
+
+                    Read
+
+                </span>
+
+                {% else %}
+
+                <span class="notification-status
+                             notification-status-new">
+
+                    <span class="notification-dot"></span>
+
+                    New
+
+                </span>
+
+                {% endif %}
+
+            </div>
+
+            <!-- Notification Message -->
+
+            <p class="notification-message">
+
+                {{ notification.message }}
+
+            </p>
+
+            <!-- Notification Date -->
+
+            <div class="notification-date">
+
+                <svg width="15" height="15"
+                     viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round">
+
+                    <circle cx="12" cy="12" r="9"/>
+
+                    <path d="M12 7v5l3 2"/>
+
+                </svg>
+
+                {{ notification.created_at.strftime(
+                    "%Y-%m-%d %H:%M"
+                ) }} UTC
+
+            </div>
+
+            <!-- Mark as Read -->
+
+            {% if not notification.is_read %}
+
+            <form method="post"
+                  action="/notifications/{{ notification.id }}/read">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{ csrf_token }}">
+
+                <button type="submit"
+                        class="notification-read-button">
+
+                    <svg width="16" height="16"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+
+                        <path d="m5 12 4 4L19 6"/>
+
+                    </svg>
+
+                    Mark as Read
+
+                </button>
+
+            </form>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <!-- Empty Notification Inbox -->
+
+    <div class="notification-empty">
+
+        <div class="notification-empty-icon">
+
+            <svg width="38" height="38"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.5"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+
+                <path d="M18 8a6 6 0 0 0-12 0
+                         c0 7-3 7-3 9h18
+                         c0-2-3-2-3-9"/>
+
+                <path d="M10 21h4"/>
+
+            </svg>
+
+        </div>
+
+        <h4>No Notifications Yet</h4>
+
+        <p>
+            You're all caught up! Your booking updates,
+            waitlist offers and venue hire notifications
+            will appear here.
+        </p>
+
+    </div>
+
+    {% endfor %}
+
+    <!-- Navigation Buttons -->
+
+    <div class="d-flex flex-wrap gap-3 mt-4">
+
+        <a href="/" class="notification-button">
+
+            Browse Events &rarr;
+
+        </a>
+
+        {% if current_role == "attendee" %}
+
+        <a href="/bookings"
+           class="notification-outline-button">
+
+            My Bookings
+
+        </a>
 
         {% endif %}
 
     </div>
-
-</div>
-
-{% else %}
-
-<!-- No Notifications -->
-
-<div class="alert alert-info">
-
-    You do not have any notifications yet.
-
-</div>
-
-{% endfor %}
-
-
-<!-- Navigation Buttons -->
-
-<div class="d-flex flex-wrap gap-2 mt-4">
-
-    <a href="/" class="btn btn-primary">
-
-        Browse Events
-
-    </a>
-
-    {% if current_role == "attendee" %}
-
-    <a href="/bookings" class="btn btn-outline-primary">
-
-        My Bookings
-
-    </a>
-
-    {% endif %}
 
 </div>
 
