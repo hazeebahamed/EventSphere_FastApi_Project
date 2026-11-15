@@ -3,21 +3,55 @@
 
 {% block content %}
 
-<h1 class="mb-4">My Bookings</h1>
+<style>
+.booking-page {--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;color:var(--ink);max-width:1100px;margin:auto;padding:24px 0 48px}
+.booking-hero {background:linear-gradient(125deg,#172554,#4338ca);color:white;padding:32px;border-radius:20px;margin-bottom:22px;box-shadow:0 12px 30px #1e3a8a20}
+.booking-hero h1 {font-weight:750;margin:8px 0;font-size:clamp(25px,4vw,36px)}
+.booking-hero p {color:#dbeafe;margin:0}.booking-eyebrow {font-size:12px;letter-spacing:2px;font-weight:700;color:#c7d2fe}
+.booking-summary {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:24px}
+.booking-summary a {display:block;background:white;border:1px solid var(--line);border-radius:15px;padding:18px;color:var(--ink);text-decoration:none;box-shadow:0 4px 15px #0f172a08}
+.booking-summary a:hover {border-color:#6366f1}.booking-summary small {display:block;color:var(--muted);font-weight:600}.booking-summary strong {display:block;font-size:28px;color:#4338ca;margin-top:5px}
+.booking-page h2 {font-size:23px;font-weight:700;margin-top:28px;scroll-margin-top:85px}
+.booking-page .card {border:1px solid var(--line);border-radius:18px;background:white;box-shadow:0 5px 22px #0f172a09!important;overflow:hidden}
+.booking-page .card-body {padding:24px}.booking-page h4,.booking-page h5 {font-weight:700;color:var(--ink)}
+.booking-card h4,.booking-card h5:first-child {padding-bottom:15px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.booking-fields {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.booking-fields p {margin:0;padding:12px 14px;background:#f8fafc;border-radius:10px;overflow-wrap:anywhere;font-size:14px}
+.booking-fields p strong {display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+.booking-page .badge {border-radius:30px;padding:7px 11px;font-weight:600;white-space:normal}
+.booking-ticket {background:linear-gradient(180deg,#f8fafc,#fff);border:1px dashed #a5b4fc!important;border-radius:15px!important;height:100%;padding:20px!important}
+.booking-ticket h6 {font-weight:700;color:#4338ca}.booking-ticket img {background:white;padding:8px;border-radius:10px}.booking-ticket p {color:var(--muted);font-family:monospace;overflow-wrap:anywhere}
+.booking-page .btn {border-radius:10px;font-weight:600;padding:10px 18px}.booking-page .btn-primary {background:linear-gradient(135deg,#2563eb,#4f46e5);border:0}
+.booking-page .alert {border-radius:12px}.booking-page .countdown {display:inline-block;background:#fff1f2;border-radius:8px;padding:5px 12px;font-size:18px;font-variant-numeric:tabular-nums}
+.booking-policy {padding:24px!important;background:#f8fafc!important}.booking-policy li {padding:5px 0;color:#475569}.booking-page hr {border-color:#cbd5e1;margin:22px 0}
+@media(max-width:600px){.booking-hero{padding:23px}.booking-summary{gap:7px}.booking-summary a{padding:12px 8px}.booking-summary small{font-size:11px}.booking-summary strong{font-size:23px}.booking-fields{grid-template-columns:1fr}.booking-page .card-body{padding:18px}.booking-page .btn{max-width:100%}}
+</style>
+<div class="booking-page">
+<header class="booking-hero">
+    <div class="booking-eyebrow">EVENTSPHERE / MY ACCOUNT</div>
+    <h1>My Bookings</h1>
+    <p>Manage your tickets, waitlist offers and private venue reservations.</p>
+</header>
+<nav class="booking-summary" aria-label="Booking sections">
+    <a href="#ticket-bookings"><small>Ticket Bookings</small><strong>{{ bookings|length }}</strong></a>
+    <a href="#my-waitlist"><small>Waitlist Entries</small><strong>{{ waitlists|length }}</strong></a>
+    <a href="#venue-hires"><small>Venue Hire Requests</small><strong>{{ hires|length }}</strong></a>
+</nav>
 
 <!-- ====================================== -->
 <!-- TICKET BOOKING HISTORY                 -->
 <!-- ====================================== -->
 
-<h2 class="mb-3">Ticket Bookings</h2>
+<h2 id="ticket-bookings" class="mb-3">Ticket Bookings</h2>
 
 {% for item in bookings %}
 
-<div class="card shadow-sm mb-4">
+<div class="card booking-card shadow-sm mb-4">
 
     <div class="card-body">
 
         <h4>{{ item.event.title }}</h4>
+        <div class="booking-fields">
 
         <p>
             <strong>Booking ID:</strong>
@@ -88,6 +122,8 @@
         </p>
 
 
+                </div>
+
         <!-- Refund Information -->
 
         {% if item.booking.status == "cancelled" %}
@@ -119,7 +155,7 @@
 
             <div class="col-12 col-sm-6 col-md-4">
 
-                <div class="border rounded p-3 text-center">
+                <div class="booking-ticket border rounded p-3 text-center">
 
                     <h6>Ticket #{{ ticket.id }}</h6>
 
@@ -227,7 +263,7 @@
 <!-- REFUND POLICY                          -->
 <!-- ====================================== -->
 
-<div class="card p-3 mt-4 mb-4">
+<div class="card booking-policy p-3 mt-4 mb-4">
 
     <h5>Booking Refund Policy</h5>
 
@@ -262,15 +298,16 @@
 <!-- WAITLIST OFFERS                        -->
 <!-- ====================================== -->
 
-<h2 class="mt-5 mb-3">My Waitlist</h2>
+<h2 id="my-waitlist" class="mt-5 mb-3">My Waitlist</h2>
 
 {% for entry in waitlists %}
 
-<div class="card shadow-sm mb-3">
+<div class="card booking-card shadow-sm mb-3">
 
     <div class="card-body">
 
         <h5>Waitlist #{{ entry.id }}</h5>
+        <div class="booking-fields">
 
         <p>
             <strong>Ticket Category ID:</strong>
@@ -320,6 +357,8 @@
 
         </p>
 
+
+                </div>
 
         <!-- Waitlist Offer -->
 
@@ -395,15 +434,16 @@
 <!-- PRIVATE VENUE HIRE HISTORY             -->
 <!-- ====================================== -->
 
-<h2 class="mt-5 mb-3">My Venue Hire Requests</h2>
+<h2 id="venue-hires" class="mt-5 mb-3">My Venue Hire Requests</h2>
 
 {% for hire in hires %}
 
-<div class="card shadow-sm mb-3">
+<div class="card booking-card shadow-sm mb-3">
 
     <div class="card-body">
 
         <h5>Hire Request #{{ hire.id }}</h5>
+        <div class="booking-fields">
 
         <p>
             <strong>Venue ID:</strong>
@@ -467,6 +507,7 @@
 
         </p>
 
+        </div>
     </div>
 
 </div>
@@ -491,6 +532,8 @@
 <!-- ====================================== -->
 <!-- WAITLIST COUNTDOWN JAVASCRIPT          -->
 <!-- ====================================== -->
+
+</div>
 
 <script>
 
