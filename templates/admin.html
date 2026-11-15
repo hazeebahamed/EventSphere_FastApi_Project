@@ -3,7 +3,65 @@
 
 {% block content %}
 
-<h1 class="mb-4">Admin Dashboard</h1>
+<style>
+.admin-shell { --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; color:var(--ink); max-width:1320px; margin:auto; padding:12px 0 40px; }
+.admin-hero { background:linear-gradient(120deg,#172554,#3730a3); color:white; border-radius:22px; padding:34px; margin-bottom:22px; box-shadow:0 12px 30px #1e3a8a22; }
+.admin-hero h1 { font-size:clamp(1.7rem,4vw,2.5rem); font-weight:750; margin:8px 0; color:white; }
+.admin-hero p { color:#dbeafe; margin:0; }
+.admin-eyebrow { font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; font-weight:700; }
+.admin-nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px; }
+.admin-nav a { background:#fff; border:1px solid var(--line); border-radius:9px; padding:9px 13px; color:#334155; text-decoration:none; font-size:.85rem; font-weight:600; }
+.admin-nav a:hover { background:#eff6ff; color:#2563eb; }
+.admin-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:24px; }
+.admin-metric { background:white; border:1px solid var(--line); border-radius:16px; padding:20px; box-shadow:0 4px 14px #0f172a06; min-width:0; }
+.admin-metric span { display:block; color:var(--muted); font-size:.82rem; font-weight:600; }
+.admin-metric strong { display:block; font-size:clamp(1.15rem,2.5vw,1.8rem); color:#1e3a8a; margin-top:8px; overflow-wrap:anywhere; }
+.admin-section { background:white; border:1px solid var(--line); border-radius:18px; padding:24px; margin-bottom:22px; box-shadow:0 5px 20px #0f172a06; scroll-margin-top:85px; }
+.admin-section h2 { font-size:1.25rem; font-weight:750; margin:0 0 5px!important; color:var(--ink); }
+.admin-section .section-note { color:var(--muted); font-size:.88rem; margin-bottom:20px; }
+.admin-section .card { border:1px solid var(--line); border-radius:12px; box-shadow:none; background:#fff; }
+.admin-section form.card { border:0; padding:0!important; margin:0!important; }
+.admin-section .form-label { font-size:.88rem; font-weight:600; color:#334155; margin-bottom:7px; }
+.admin-section .form-control,.admin-section .form-select { min-height:46px; border:1px solid #dbe2ea; border-radius:9px; background-color:#f8fafc; color:#0f172a; }
+.admin-section textarea.form-control { min-height:95px; }
+.admin-section .form-control:focus,.admin-section .form-select:focus { background-color:#fff; border-color:#2563eb; box-shadow:0 0 0 3px #2563eb18; }
+.admin-section .btn { border-radius:9px; font-weight:600; padding:9px 16px; }
+.admin-section .btn-sm { padding:6px 12px; }
+.admin-section .btn-primary { background:linear-gradient(135deg,#2563eb,#4f46e5); border:0; }
+.admin-section .table { margin-bottom:0; vertical-align:middle; font-size:.9rem; }
+.admin-section .table th { background:#f1f5f9; color:#475569; border-bottom:1px solid var(--line); font-size:.76rem; text-transform:uppercase; letter-spacing:.035em; white-space:nowrap; }
+.admin-section .table td,.admin-section .table th { padding:13px 14px; }
+.admin-section .table td { border-color:#edf2f7; }
+.admin-section .table-responsive { border:1px solid var(--line); border-radius:12px; margin-bottom:0!important; }
+.admin-section details summary { cursor:pointer; color:#334155; padding:4px; }
+.admin-section details[open] summary { border-bottom:1px solid var(--line); padding-bottom:14px; }
+.admin-section .ticket-row { background:#f8fafc; border-color:var(--line)!important; }
+.admin-section h4 { font-size:1rem; font-weight:700; margin:14px 0; }
+.admin-status { display:inline-block; font-weight:650; font-size:.75rem; padding:5px 10px; border-radius:20px; background:#e2e8f0; color:#475569; overflow-wrap:anywhere; }
+.admin-status.published,.admin-status.confirmed,.admin-status.approved,.admin-status.agree { background:#dcfce7; color:#166534; }
+.admin-status.pending,.admin-status.draft,.admin-status.propose { background:#fef3c7; color:#92400e; }
+.admin-status.cancelled,.admin-status.rejected,.admin-status.refuse,.admin-status.failure { background:#fee2e2; color:#991b1b; }
+.admin-status.inform,.admin-status.request { background:#dbeafe; color:#1e40af; }
+.admin-layout { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; align-items:start; }
+.admin-layout .admin-section { min-width:0; }
+@media(max-width:900px) { .admin-layout { grid-template-columns:1fr; gap:0; } .admin-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:480px) { .admin-hero,.admin-section { padding:17px; border-radius:14px; } .admin-metric { padding:12px; } .admin-metrics { gap:8px; } }
+</style>
+<div class="admin-shell">
+<header class="admin-hero">
+    <div class="admin-eyebrow">EventSphere • Administration</div>
+    <h1>Admin Dashboard</h1>
+    <p>Manage venues, events, bookings and agent activity in one place.</p>
+</header>
+<nav class="admin-nav" aria-label="Dashboard sections">
+    <a href="#statistics">Overview</a><a href="#create-venue">Create venue</a><a href="#manage-venues">Manage venues</a><a href="#create-event">Create event</a><a href="#manage-events">Manage events</a><a href="#hires">Private hires</a><a href="#agent-logs">Agent logs</a>
+</nav>
+<div class="admin-metrics">
+    <div class="admin-metric"><span>Event capacity total</span><strong>{{ event_statistics|sum(attribute='capacity') }}</strong></div>
+    <div class="admin-metric"><span>Tickets sold</span><strong>{{ event_statistics|sum(attribute='sold') }}</strong></div>
+    <div class="admin-metric"><span>Revenue (LKR)</span><strong>{{ "{:,.2f}".format(event_statistics|sum(attribute='revenue')) }}</strong></div>
+    <div class="admin-metric"><span>Check-ins</span><strong>{{ event_statistics|sum(attribute='checkins') }}</strong></div>
+</div>
 
 <!-- CSRF Token -->
 
@@ -15,16 +73,17 @@
 
 {% endmacro %}
 
-
 <!-- Event Statistics -->
 
-<h2 class="mb-3">Event Statistics</h2>
+<section class="admin-section" id="statistics">
+<h2>Event Statistics</h2>
+<p class="section-note">Monitor capacity, ticket sales, revenue and attendance.</p>
 
 <div class="table-responsive">
 
-    <table class="table table-bordered table-striped">
+    <table class="table table-hover">
 
-        <thead class="table-dark">
+        <thead >
 
             <tr>
                 <th>Event</th>
@@ -62,10 +121,13 @@
 
 </div>
 
-
 <!-- Create Venue -->
 
-<h2 class="mt-4">Create Venue</h2>
+</section>
+<div class="admin-layout">
+<section class="admin-section" id="create-venue">
+<h2>Create Venue</h2>
+<p class="section-note">Add a new venue to the platform.</p>
 
 <form method="post"
       action="/admin/venues"
@@ -142,10 +204,12 @@
 
 </form>
 
-
 <!-- Edit Venues -->
 
+</section>
+<section class="admin-section" id="manage-venues">
 <h2>Manage Venues</h2>
+<p class="section-note">Expand a venue to edit its details.</p>
 
 {% for venue in venues %}
 
@@ -246,14 +310,18 @@
 
 {% else %}
 
-<p>No venues available.</p>
+<p class="text-muted">No venues available.</p>
 
 {% endfor %}
 
-
 <!-- Create Event -->
 
-<h2 class="mt-4">Create Event</h2>
+</section>
+</div>
+<div class="admin-layout">
+<section class="admin-section" id="create-event">
+<h2>Create Event</h2>
+<p class="section-note">Set the schedule, venue and ticket categories.</p>
 
 <form method="post"
       action="/admin/events"
@@ -316,7 +384,6 @@
     <textarea name="description"
               class="form-control mb-3"
               required></textarea>
-
 
     <!-- Ticket Categories -->
 
@@ -383,16 +450,18 @@
 
 </form>
 
-
 <!-- Manage Events -->
 
+</section>
+<section class="admin-section" id="manage-events">
 <h2>Manage Events</h2>
+<p class="section-note">Review, publish or cancel existing events.</p>
 
 <div class="table-responsive mb-4">
 
-    <table class="table table-bordered">
+    <table class="table table-hover">
 
-        <thead class="table-dark">
+        <thead >
 
             <tr>
 
@@ -418,7 +487,7 @@
 
                 <td>{{ event.category }}</td>
 
-                <td>{{ event.status }}</td>
+                <td><span class="admin-status {{ event.status|lower }}">{{ event.status|title }}</span></td>
 
                 <td>
 
@@ -470,10 +539,13 @@
 
 </div>
 
-
 <!-- Private Hire Requests -->
 
+</section>
+</div>
+<section class="admin-section" id="hires">
 <h2>Private Venue Hire Requests</h2>
+<p class="section-note">Review private bookings and pending decisions.</p>
 
 {% for hire in hires %}
 
@@ -493,7 +565,7 @@
 
     <p>Price: LKR {{ hire.price }}</p>
 
-    <p>Status: {{ hire.status }}</p>
+    <p>Status: <span class="admin-status {{ hire.status|lower }}">{{ hire.status|title }}</span></p>
 
     {% if hire.status == "pending" %}
 
@@ -528,14 +600,16 @@
 
 {% else %}
 
-<p>No private hire requests.</p>
+<p class="text-muted">No private hire requests.</p>
 
 {% endfor %}
 
-
 <!-- Agent Communication Logs -->
 
-<h2 class="mt-4">Agent Communication Logs</h2>
+</section>
+<section class="admin-section" id="agent-logs">
+<h2>Agent Communication Logs</h2>
+<p class="section-note">Inspect messages exchanged by software agents.</p>
 
 <a href="/admin/logs"
    class="btn btn-primary mb-3">
@@ -546,9 +620,9 @@
 
 <div class="table-responsive">
 
-    <table class="table table-bordered table-striped">
+    <table class="table table-hover">
 
-        <thead class="table-dark">
+        <thead >
 
             <tr>
 
@@ -574,7 +648,7 @@
 
                 <td>{{ log.receiver }}</td>
 
-                <td>{{ log.performative }}</td>
+                <td><span class="admin-status {{ log.performative|lower }}">{{ log.performative }}</span></td>
 
                 <td class="text-break">
                     {{ log.conversation_id }}
@@ -588,6 +662,9 @@
 
     </table>
 
+</div>
+
+</section>
 </div>
 
 {% endblock %}
