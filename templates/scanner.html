@@ -1,87 +1,791 @@
+
 {% extends "base.html" %}
 
 {% block content %}
 
-<h2>Staff Ticket Scanner</h2>
+<style>
+    .scanner-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 0 40px;
+        color: #0f172a;
+    }
 
-<form id="scan-form">
+    .scanner-hero {
+        background: linear-gradient(135deg, #172554, #4338ca);
+        border-radius: 22px;
+        padding: 35px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.15);
+    }
 
-    <input type="hidden"
-           name="csrf_token"
-           value="{{ csrf_token }}">
+    .scanner-hero-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        color: #c7d2fe;
+        margin-bottom: 12px;
+    }
 
-    <select name="event_id"
-            class="form-select mb-3"
-            required>
+    .scanner-hero h1 {
+        font-size: 32px;
+        font-weight: 750;
+        color: white;
+        margin-bottom: 12px;
+    }
 
-        {% for event in events %}
+    .scanner-hero p {
+        color: #e0e7ff;
+        font-size: 14px;
+        line-height: 1.8;
+        margin: 0;
+    }
 
-        <option value="{{ event.id }}">
-            {{ event.title }}
-        </option>
+    .scanner-panel {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 25px;
+        height: 100%;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+    }
 
-        {% endfor %}
+    .scanner-panel-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 22px;
+    }
 
-    </select>
+    .scanner-icon {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e0e7ff;
+        color: #4338ca;
+        border-radius: 13px;
+    }
 
-    <input id="code"
-           name="code"
-           class="form-control mb-3"
-           placeholder="Enter ticket code"
-           required>
+    .scanner-panel-title {
+        font-size: 19px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
 
-    <button class="btn btn-primary">
-        Validate Ticket
-    </button>
+    .scanner-panel-subtitle {
+        color: #64748b;
+        font-size: 13px;
+        margin: 0;
+    }
 
-</form>
+    .scanner-page .form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 9px;
+    }
 
-<div id="reader" class="mt-3"></div>
+    .scanner-page .form-control,
+    .scanner-page .form-select {
+        min-height: 50px;
+        border: 1px solid #dbe2ea;
+        border-radius: 10px;
+        background-color: #f8fafc;
+        font-size: 14px;
+    }
 
-<div id="result" class="mt-3"></div>
+    .scanner-page .form-control:focus,
+    .scanner-page .form-select:focus {
+        background-color: white;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .scanner-field {
+        margin-bottom: 22px;
+    }
+
+    .scanner-field-help {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 8px;
+    }
+
+    .scanner-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        width: 100%;
+        padding: 14px 20px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .scanner-button:hover {
+        background: linear-gradient(135deg, #1d4ed8, #4338ca);
+    }
+
+    .scanner-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .scanner-instructions {
+        padding: 18px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        margin-top: 25px;
+    }
+
+    .scanner-instructions h6 {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .scanner-instructions ol {
+        padding-left: 20px;
+        margin-bottom: 0;
+        font-size: 13px;
+        color: #64748b;
+        line-height: 2;
+    }
+
+    #reader {
+        width: 100%;
+        max-width: 100%;
+        min-height: 180px;
+        border: 2px dashed #c7d2fe !important;
+        border-radius: 14px;
+        background: #f8fafc;
+        overflow: hidden;
+        padding: 12px;
+    }
+
+    #reader video {
+        max-width: 100%;
+        border-radius: 10px;
+    }
+
+    #reader button {
+        background: #4338ca;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 15px;
+        margin: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    #reader button:hover {
+        background: #3730a3;
+    }
+
+    #reader select {
+        max-width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 8px;
+        margin: 8px 0;
+    }
+
+    #reader a {
+        color: #4338ca !important;
+        font-size: 12px;
+    }
+
+    .scanner-camera-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
+        color: #4338ca;
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 13px;
+        line-height: 1.7;
+        margin-top: 18px;
+    }
+
+    .scanner-camera-note svg {
+        flex-shrink: 0;
+    }
+
+    .scanner-result {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border: 1px solid;
+        border-radius: 16px;
+        padding: 25px;
+        margin-top: 25px;
+    }
+
+    .scanner-result-idle {
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        color: #64748b;
+    }
+
+    .scanner-result-success {
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+        color: #166534;
+    }
+
+    .scanner-result-danger {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #b91c1c;
+    }
+
+    .scanner-result-loading {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1d4ed8;
+    }
+
+    .scanner-result-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 50%;
+        flex-shrink: 0;
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .scanner-result h4 {
+        font-size: 22px;
+        font-weight: 750;
+        margin-bottom: 7px;
+        color: inherit;
+    }
+
+    .scanner-result p {
+        font-size: 14px;
+        line-height: 1.7;
+        margin: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .scanner-restart {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #c7d2fe;
+        border-radius: 10px;
+        background: white;
+        color: #4338ca;
+        font-weight: 600;
+        font-size: 14px;
+        margin-top: 15px;
+    }
+
+    .scanner-restart:hover {
+        background: #eef2ff;
+    }
+
+    .scanner-restart:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 576px) {
+        .scanner-hero {
+            padding: 28px 22px;
+        }
+
+        .scanner-hero h1 {
+            font-size: 26px;
+        }
+
+        .scanner-panel {
+            padding: 18px;
+        }
+
+        .scanner-result {
+            padding: 18px;
+            gap: 14px;
+        }
+
+        .scanner-result-icon {
+            width: 45px;
+            height: 45px;
+            font-size: 22px;
+        }
+
+        .scanner-result h4 {
+            font-size: 19px;
+        }
+    }
+</style>
+
+
+<div class="scanner-page">
+
+    <!-- Page Header -->
+
+    <div class="scanner-hero">
+
+        <div class="scanner-hero-label">
+            EVENTSPHERE / STAFF PORTAL
+        </div>
+
+        <h1>Staff Ticket Scanner</h1>
+
+        <p>
+            Validate event tickets, scan QR codes and manage
+            attendee entry using the EventSphere ticket
+            validation system.
+        </p>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <!-- Manual Ticket Validation -->
+
+        <div class="col-12 col-lg-6">
+
+            <div class="scanner-panel">
+
+                <div class="scanner-panel-header">
+
+                    <div class="scanner-icon">
+
+                        <svg width="25" height="25"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+
+                            <rect x="2" y="5"
+                                  width="20" height="14" rx="2"/>
+
+                            <path d="M6 9h.01M10 9h.01
+                                     M14 9h.01M18 9h.01
+                                     M6 13h.01M10 13h.01
+                                     M14 13h.01M18 13h.01
+                                     M8 16h8"/>
+
+                        </svg>
+
+                    </div>
+
+                    <div>
+
+                        <h3 class="scanner-panel-title">
+                            Manual Validation
+                        </h3>
+
+                        <p class="scanner-panel-subtitle">
+                            Enter a ticket code manually.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form id="scan-form">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token }}">
+
+
+                    <!-- Event Selection -->
+
+                    <div class="scanner-field">
+
+                        <label for="event_id"
+                               class="form-label">
+
+                            Select Event
+
+                        </label>
+
+                        <select name="event_id"
+                                id="event_id"
+                                class="form-select"
+                                required>
+
+                            <option value="" disabled selected>
+                                Choose an event
+                            </option>
+
+                            {% for event in events %}
+
+                            <option value="{{ event.id }}">
+                                {{ event.title }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                        <div class="scanner-field-help">
+
+                            Select the event you are checking
+                            attendees into.
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Ticket Code -->
+
+                    <div class="scanner-field">
+
+                        <label for="code"
+                               class="form-label">
+
+                            Ticket Code
+
+                        </label>
+
+                        <input type="text"
+                               id="code"
+                               name="code"
+                               class="form-control"
+                               placeholder="Enter or paste ticket code"
+                               autocomplete="off"
+                               required>
+
+                        <div class="scanner-field-help">
+
+                            Enter the unique code associated
+                            with the attendee's ticket.
+
+                        </div>
+
+                    </div>
+
+
+                    <button type="submit"
+                            id="validate-button"
+                            class="scanner-button">
+
+                        <svg width="19" height="19"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="2"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+
+                            <circle cx="12" cy="12" r="9"/>
+                            <path d="m8 12 3 3 5-6"/>
+
+                        </svg>
+
+                        Validate Ticket
+
+                    </button>
+
+                </form>
+
+
+                <!-- Instructions -->
+
+                <div class="scanner-instructions">
+
+                    <h6>How to Validate a Ticket</h6>
+
+                    <ol>
+
+                        <li>Select the correct event.</li>
+
+                        <li>Enter or scan the ticket code.</li>
+
+                        <li>Wait for the validation result.</li>
+
+                        <li>Allow entry only when approved.</li>
+
+                    </ol>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- QR Camera Scanner -->
+
+        <div class="col-12 col-lg-6">
+
+            <div class="scanner-panel">
+
+                <div class="scanner-panel-header">
+
+                    <div class="scanner-icon">
+
+                        <svg width="25" height="25"
+                             viewBox="0 0 24 24"
+                             fill="none"
+                             stroke="currentColor"
+                             stroke-width="1.8"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+
+                            <rect x="3" y="3"
+                                  width="7" height="7" rx="1"/>
+
+                            <rect x="14" y="3"
+                                  width="7" height="7" rx="1"/>
+
+                            <rect x="3" y="14"
+                                  width="7" height="7" rx="1"/>
+
+                            <path d="M14 14h3v3h4
+                                     M14 21v-4
+                                     M21 14h.01
+                                     M18 21h3"/>
+
+                        </svg>
+
+                    </div>
+
+                    <div>
+
+                        <h3 class="scanner-panel-title">
+                            QR Code Scanner
+                        </h3>
+
+                        <p class="scanner-panel-subtitle">
+                            Scan tickets using your camera.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div id="reader"></div>
+
+
+                <button type="button"
+                        id="restart-scanner"
+                        class="scanner-restart"
+                        hidden>
+
+                    Scan Next Ticket
+
+                </button>
+
+
+                <div class="scanner-camera-note">
+
+                    <svg width="19" height="19"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8">
+
+                        <circle cx="12" cy="12" r="9"/>
+
+                        <path d="M12 11v5M12 7h.01"/>
+
+                    </svg>
+
+                    <div>
+
+                        Select the correct event before scanning.
+                        Allow camera access and position the
+                        attendee's QR code inside the scanning area.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Ticket Validation Result -->
+
+    <div id="result"
+         class="scanner-result scanner-result-idle"
+         role="status"
+         aria-live="polite">
+
+        <div id="result-icon"
+             class="scanner-result-icon">
+
+            &#9678;
+
+        </div>
+
+        <div>
+
+            <h4 id="result-title">
+                Ready to Scan
+            </h4>
+
+            <p id="result-message">
+
+                Select an event and validate a ticket using
+                manual entry or the QR code scanner.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- QR Scanner Library -->
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
+
 <script>
 
-let busy = false;
+    let busy = false;
 
-async function validateTicket() {
+    let scanner = null;
 
-    if (busy) return;
+    const form = document.getElementById("scan-form");
 
-    busy = true;
+    const codeInput = document.getElementById("code");
 
-    try {
+    const eventSelect = document.getElementById("event_id");
 
-        const form = document.getElementById("scan-form");
+    const validateButton =
+        document.getElementById("validate-button");
 
-        const response = await fetch("/scan", {
-            method: "POST",
-            body: new FormData(form)
-        });
+    const restartButton =
+        document.getElementById("restart-scanner");
 
-        const result = await response.json();
+
+    // Display validation result
+
+    function showResult(type, title, message, icon) {
 
         const output = document.getElementById("result");
 
-        const admitted = result.performative === "AGREE";
+        output.className =
+            "scanner-result scanner-result-" + type;
 
-        output.className = admitted
-            ? "alert alert-success mt-3"
-            : "alert alert-danger mt-3";
+        document.getElementById("result-title")
+            .textContent = title;
 
-        output.textContent = admitted
-            ? "Entry Approved"
-            : result.content?.reason || "Request rejected";
+        document.getElementById("result-message")
+            .textContent = message;
 
-    } finally {
-        busy = false;
+        document.getElementById("result-icon")
+            .textContent = icon;
+
     }
-}
 
-document.getElementById("scan-form")
-    .addEventListener("submit", function(event) {
+
+    // Validate ticket through backend
+
+    async function validateTicket() {
+
+        if (busy) return;
+
+        if (!form.reportValidity()) return;
+
+        busy = true;
+
+        validateButton.disabled = true;
+
+        restartButton.disabled = true;
+
+        showResult(
+            "loading",
+            "Validating Ticket...",
+            "Please wait while the TicketAgent processes your request.",
+            "..."
+        );
+
+        try {
+
+            const response = await fetch("/scan", {
+
+                method: "POST",
+
+                body: new FormData(form)
+
+            });
+
+            const result = await response.json();
+
+            const admitted = result.performative === "AGREE";
+
+            if (admitted) {
+
+                showResult(
+                    "success",
+                    "Entry Approved",
+                    "Ticket successfully validated. The attendee may enter.",
+                    "✓"
+                );
+
+            } else {
+
+                showResult(
+                    "danger",
+                    "Entry Denied",
+                    result.content?.reason || "Request rejected.",
+                    "✕"
+                );
+
+            }
+
+        } catch (error) {
+
+            showResult(
+                "danger",
+                "Validation Error",
+                "The result could not be received. Check the connection and ticket status before retrying.",
+                "!"
+            );
+
+        } finally {
+
+            busy = false;
+
+            validateButton.disabled = false;
+
+            restartButton.disabled = false;
+
+        }
+
+    }
+
+
+    // Manual ticket validation
+
+    form.addEventListener("submit", function(event) {
 
         event.preventDefault();
 
@@ -89,20 +793,105 @@ document.getElementById("scan-form")
 
     });
 
-let scanner = new Html5QrcodeScanner(
-    "reader",
-    { fps: 10, qrbox: 220 }
-);
 
-scanner.render(async function(decodedText) {
+    // Start QR scanner
 
-    document.getElementById("code").value = decodedText;
+    function startScanner() {
 
-    await scanner.clear();
+        if (typeof Html5QrcodeScanner === "undefined") {
 
-    await validateTicket();
+            document.getElementById("reader").textContent =
+                "Camera scanner unavailable. Please use manual validation.";
 
-});
+            return;
+
+        }
+
+        restartButton.hidden = true;
+
+        scanner = new Html5QrcodeScanner(
+            "reader",
+            {
+                fps: 10,
+                qrbox: 220
+            }
+        );
+
+        let scanLocked = false;
+
+        scanner.render(async function(decodedText) {
+
+            if (busy || scanLocked) return;
+
+            if (!eventSelect.value) {
+
+                eventSelect.reportValidity();
+
+                return;
+
+            }
+
+            scanLocked = true;
+
+            validateButton.disabled = true;
+
+            codeInput.value = decodedText;
+
+            try {
+
+                await scanner.clear();
+
+                scanner = null;
+
+                restartButton.hidden = false;
+
+                await validateTicket();
+
+            } catch (error) {
+
+                showResult(
+                    "danger",
+                    "Scanner Error",
+                    "Unable to stop the camera scanner. Please try again.",
+                    "!"
+                );
+
+                scanLocked = false;
+
+            } finally {
+
+                validateButton.disabled = busy;
+
+            }
+
+        });
+
+    }
+
+
+    // Restart scanner for the next attendee
+
+    restartButton.addEventListener("click", function() {
+
+        if (busy) return;
+
+        codeInput.value = "";
+
+        showResult(
+            "idle",
+            "Ready to Scan",
+            "Position the next attendee's QR code inside the scanning area.",
+            "◎"
+        );
+
+        startScanner();
+
+    });
+
+
+    // Initialize camera scanner
+
+    startScanner();
 
 </script>
 
