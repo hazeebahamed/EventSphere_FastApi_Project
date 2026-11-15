@@ -3,293 +3,854 @@
 
 {% block content %}
 
-<h1 class="mb-4">Agent Communication Logs</h1>
+<style>
+    .logs-page {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px 0 40px;
+        color: #0f172a;
+    }
 
-<p class="text-muted">
+    .logs-hero {
+        background: linear-gradient(135deg, #172554, #4338ca);
+        border-radius: 22px;
+        padding: 35px;
+        color: white;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.15);
+    }
 
-    Monitor structured messages exchanged
-    between EventSphere software agents.
+    .logs-hero-label {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        color: #c7d2fe;
+        margin-bottom: 12px;
+    }
 
-</p>
+    .logs-hero h1 {
+        font-size: 32px;
+        font-weight: 750;
+        color: white;
+        margin-bottom: 12px;
+    }
 
+    .logs-hero p {
+        font-size: 14px;
+        color: #e0e7ff;
+        margin: 0;
+        line-height: 1.8;
+    }
 
-<!-- Search Conversation -->
+    .logs-panel {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.04);
+    }
 
-<form method="get"
-      action="/admin/logs"
-      class="card p-3 mb-4">
+    .logs-panel-title {
+        font-size: 19px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
 
-    <label class="form-label">
+    .logs-panel-subtitle {
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 20px;
+    }
 
-        Conversation ID
+    .logs-stat-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 20px;
+        height: 100%;
+        box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+        transition: all 0.2s ease;
+    }
 
-    </label>
+    .logs-stat-card:hover {
+        transform: translateY(-3px);
+        border-color: #a5b4fc;
+    }
+
+    .logs-stat-icon {
+        height: 42px;
+        width: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+
+    .logs-stat-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    .logs-stat-value {
+        font-size: 30px;
+        font-weight: 750;
+        color: #0f172a;
+        margin-top: 5px;
+    }
+
+    .logs-page .form-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+    }
+
+    .logs-page .form-control {
+        min-height: 48px;
+        border: 1px solid #dbe2ea;
+        border-radius: 10px;
+        background: #f8fafc;
+        font-size: 14px;
+    }
+
+    .logs-page .form-control:focus {
+        background: white;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .logs-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .logs-button:hover {
+        background: linear-gradient(135deg, #1d4ed8, #4338ca);
+        color: white;
+    }
+
+    .logs-outline-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 20px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        background: white;
+        color: #475569;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .logs-outline-button:hover {
+        color: #4338ca;
+        border-color: #6366f1;
+        background: #eef2ff;
+    }
+
+    .logs-performative {
+        display: inline-block;
+        border-radius: 30px;
+        padding: 6px 12px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+    }
+
+    .logs-request {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .logs-agree {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .logs-refuse {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .logs-propose {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .logs-inform {
+        background: #cffafe;
+        color: #0e7490;
+    }
+
+    .logs-failure {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    .logs-unknown {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .logs-legend-item {
+        padding: 14px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        height: 100%;
+    }
+
+    .logs-legend-item p {
+        font-size: 12px;
+        color: #64748b;
+        margin: 10px 0 0;
+        line-height: 1.6;
+    }
+
+    .logs-table-panel {
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .logs-table-header {
+        padding: 22px 25px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .logs-table {
+        margin: 0;
+        font-size: 13px;
+        min-width: 1000px;
+    }
+
+    .logs-table thead th {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 16px;
+        border-bottom: 1px solid #e2e8f0;
+        font-weight: 700;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .logs-table tbody td {
+        padding: 18px 16px;
+        vertical-align: top;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .logs-table tbody tr:hover td {
+        background: #f8fafc;
+    }
+
+    .logs-agent-name {
+        font-weight: 650;
+        color: #1e293b;
+    }
+
+    .logs-conversation {
+        color: #4f46e5;
+        font-family: monospace;
+        font-size: 12px;
+        text-decoration: none;
+        overflow-wrap: anywhere;
+        display: inline-block;
+        min-width: 150px;
+    }
+
+    .logs-conversation:hover {
+        text-decoration: underline;
+    }
+
+    .logs-time {
+        font-size: 12px;
+        color: #64748b;
+        white-space: nowrap;
+    }
+
+    .logs-message summary {
+        color: #4338ca;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        background: #eef2ff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        white-space: nowrap;
+    }
+
+    .logs-message summary:hover {
+        background: #e0e7ff;
+    }
+
+    .logs-message[open] summary {
+        margin-bottom: 10px;
+    }
+
+    .agent-json {
+        background: #0f172a;
+        color: #a5f3fc;
+        border-radius: 10px;
+        padding: 16px;
+        font-size: 12px;
+        line-height: 1.8;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        min-width: 230px;
+        max-width: 400px;
+        max-height: 320px;
+        overflow: auto;
+        margin: 0;
+    }
+
+    .logs-empty {
+        text-align: center;
+        padding: 50px 20px !important;
+        color: #64748b;
+    }
+
+    .logs-back {
+        display: inline-block;
+        color: #475569;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .logs-back:hover {
+        color: #4338ca;
+    }
+
+    @media (max-width: 576px) {
+        .logs-hero {
+            padding: 28px 22px;
+        }
+
+        .logs-hero h1 {
+            font-size: 26px;
+        }
+
+        .logs-panel {
+            padding: 18px;
+        }
+
+        .logs-table-panel {
+            padding: 0;
+        }
+
+        .logs-stat-card {
+            padding: 15px;
+        }
+
+        .logs-stat-value {
+            font-size: 25px;
+        }
+    }
+</style>
+
+{% macro performative_badge(value) %}
+
+    <span class="logs-performative
+        {% if value == 'REQUEST' %}logs-request
+        {% elif value == 'AGREE' %}logs-agree
+        {% elif value == 'REFUSE' %}logs-refuse
+        {% elif value == 'PROPOSE' %}logs-propose
+        {% elif value == 'INFORM' %}logs-inform
+        {% elif value == 'FAILURE' %}logs-failure
+        {% else %}logs-unknown
+        {% endif %}">
+
+        {{ value }}
+
+    </span>
+
+{% endmacro %}
+
+<div class="logs-page">
+
+    <a href="/admin" class="logs-back">
+        &larr; Back to Admin Dashboard
+    </a>
+
+    <!-- Dashboard Header -->
+
+    <div class="logs-hero">
+
+        <div class="logs-hero-label">
+            EVENTSPHERE / AGENT MONITORING
+        </div>
+
+        <h1>Agent Communication Logs</h1>
+
+        <p>
+            Monitor structured messages, track conversations
+            and inspect communication between EventSphere
+            software agents.
+        </p>
+
+    </div>
+
+    <!-- Message Statistics -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-6 col-lg-3">
+
+            <div class="logs-stat-card">
+
+                <div class="logs-stat-icon"
+                     style="background:#e0e7ff;color:#4338ca;">
+
+                    <svg width="22" height="22"
+                         viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+
+                        <path d="M21 11.5a8.4 8.4 0 0 1-9 8.5
+                                 9 9 0 0 1-4-.9L3 21l1.9-5
+                                 A8.5 8.5 0 1 1 21 11.5z"/>
+
+                    </svg>
+
+                </div>
+
+                <div class="logs-stat-label">
+                    Displayed Messages
+                </div>
+
+                <div class="logs-stat-value">
+                    {{ logs|length }}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-6 col-lg-3">
+
+            <div class="logs-stat-card">
+
+                <div class="logs-stat-icon"
+                     style="background:#dbeafe;color:#2563eb;">
+
+                    <svg width="22" height="22"
+                         viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+
+                        <path d="M3 12h18m-7-7 7 7-7 7"/>
+
+                    </svg>
+
+                </div>
+
+                <div class="logs-stat-label">
+                    Request Messages
+                </div>
+
+                <div class="logs-stat-value">
+                    {{ logs|selectattr("performative", "equalto", "REQUEST")|list|length }}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-6 col-lg-3">
+
+            <div class="logs-stat-card">
+
+                <div class="logs-stat-icon"
+                     style="background:#dcfce7;color:#16a34a;">
+
+                    <svg width="22" height="22"
+                         viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="m8 12 3 3 5-6"/>
+
+                    </svg>
+
+                </div>
+
+                <div class="logs-stat-label">
+                    Agree Messages
+                </div>
+
+                <div class="logs-stat-value">
+                    {{ logs|selectattr("performative", "equalto", "AGREE")|list|length }}
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-6 col-lg-3">
+
+            <div class="logs-stat-card">
+
+                <div class="logs-stat-icon"
+                     style="background:#fee2e2;color:#dc2626;">
+
+                    <svg width="22" height="22"
+                         viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round">
+
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M12 7v6M12 17h.01"/>
+
+                    </svg>
+
+                </div>
+
+                <div class="logs-stat-label">
+                    Failure Messages
+                </div>
+
+                <div class="logs-stat-value">
+                    {{ logs|selectattr("performative", "equalto", "FAILURE")|list|length }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Search Conversation -->
+
+    <div class="logs-panel">
+
+        <h5 class="logs-panel-title">
+            Search Conversation
+        </h5>
+
+        <p class="logs-panel-subtitle">
+            Filter messages using a unique conversation ID.
+        </p>
+
+        <form method="get" action="/admin/logs">
+
+            <label class="form-label" for="conversationID">
+                Conversation ID
+            </label>
+
+            <div class="row g-2">
+
+                <div class="col-12 col-md">
+
+                    <input type="text"
+                           id="conversationID"
+                           name="conversation_id"
+                           class="form-control"
+                           value="{{ conversation_id or '' }}"
+                           placeholder="Enter Conversation ID">
+
+                </div>
+
+                <div class="col-6 col-md-auto">
+
+                    <button type="submit"
+                            class="logs-button w-100">
+
+                        <svg width="17" height="17"
+                             viewBox="0 0 24 24"
+                             fill="none" stroke="currentColor"
+                             stroke-width="2"
+                             stroke-linecap="round">
+
+                            <circle cx="11" cy="11" r="7"/>
+                            <path d="m20 20-4-4"/>
+
+                        </svg>
+
+                        Search
+
+                    </button>
+
+                </div>
+
+                <div class="col-6 col-md-auto">
+
+                    <a href="/admin/logs"
+                       class="logs-outline-button w-100">
+
+                        Clear
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- Agent Performatives -->
+
+    <div class="logs-panel">
+
+        <h5 class="logs-panel-title">
+            Agent Performatives
+        </h5>
+
+        <p class="logs-panel-subtitle">
+            Understand the purpose of each agent message type.
+        </p>
+
+        <div class="row g-3">
+
+            {% for name, description in [
+                ("REQUEST", "Requests an agent to perform an action."),
+                ("AGREE", "Accepts a requested action."),
+                ("REFUSE", "Declines a requested action."),
+                ("PROPOSE", "Suggests an alternative solution."),
+                ("INFORM", "Communicates information or results."),
+                ("FAILURE", "Reports an unsuccessful operation.")
+            ] %}
+
+            <div class="col-6 col-md-4 col-xl-2">
+
+                <div class="logs-legend-item">
+
+                    {{ performative_badge(name) }}
+
+                    <p>{{ description }}</p>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    <!-- Agent Communication Table -->
+
+    <div class="logs-panel logs-table-panel">
+
+        <div class="logs-table-header">
+
+            <div class="d-flex align-items-center
+                        justify-content-between flex-wrap gap-3">
+
+                <div>
+
+                    <h5 class="logs-panel-title">
+                        Communication History
+                    </h5>
+
+                    <p class="logs-panel-subtitle mb-0">
+                        {{ logs|length }} messages displayed
+                    </p>
+
+                </div>
+
+                <a href="/admin/logs{% if conversation_id %}?conversation_id={{ conversation_id|urlencode }}{% endif %}"
+                   class="logs-outline-button">
+
+                    <svg width="17" height="17"
+                         viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+
+                        <path d="M20 7v5h-5M4 17v-5h5"/>
+                        <path d="M6 7a7 7 0 0 1 12-1l2 6
+                                 M4 12l2 6a7 7 0 0 0 12-1"/>
+
+                    </svg>
+
+                    Refresh Logs
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table logs-table">
+
+                <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Sender</th>
+                        <th>Receiver</th>
+                        <th>Performative</th>
+                        <th>Message Content</th>
+                        <th>Conversation ID</th>
+                        <th>Date and Time</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for log in logs %}
+
+                    <tr>
+
+                        <td class="text-muted">
+                            #{{ log.id }}
+                        </td>
+
+                        <td>
+                            <span class="logs-agent-name">
+                                {{ log.sender }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ log.receiver }}
+                        </td>
+
+                        <td>
+                            {{ performative_badge(log.performative) }}
+                        </td>
+
+                        <!-- Expandable JSON Message -->
+
+                        <td>
+
+                            <details class="logs-message">
+
+                                <summary>
+                                    View Message
+                                </summary>
+
+                                <pre class="agent-json">{{ log.content }}</pre>
+
+                            </details>
+
+                        </td>
+
+                        <!-- Conversation ID -->
+
+                        <td>
+
+                            <a class="logs-conversation"
+                               href="/admin/logs?conversation_id={{ log.conversation_id|urlencode }}">
+
+                                {{ log.conversation_id }}
+
+                            </a>
+
+                        </td>
+
+                        <!-- Date and Time -->
+
+                        <td>
+
+                            <span class="logs-time">
+
+                                {{ log.created_at.strftime(
+                                    "%Y-%m-%d %H:%M:%S"
+                                ) }} UTC
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td colspan="7" class="logs-empty">
+
+                            <svg width="45" height="45"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="#94a3b8"
+                                 stroke-width="1.5"
+                                 stroke-linecap="round">
+
+                                <rect x="4" y="3"
+                                      width="16" height="18" rx="2"/>
+
+                                <path d="M8 8h8M8 12h8M8 16h4"/>
+
+                            </svg>
+
+                            <h5 class="mt-3">
+                                No Messages Found
+                            </h5>
+
+                            <p class="mb-0">
+                                No agent communication logs
+                                match your search.
+                            </p>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Navigation -->
 
     <div class="d-flex flex-wrap gap-2">
 
-        <input
-            type="text"
-            name="conversation_id"
-            class="form-control"
-            value="{{ conversation_id or '' }}"
-            placeholder="Enter Conversation ID">
+        <a href="/admin" class="logs-button">
+            &larr; Back to Admin Dashboard
+        </a>
 
-        <button
-            type="submit"
-            class="btn btn-primary">
+        <a href="/admin/logs{% if conversation_id %}?conversation_id={{ conversation_id|urlencode }}{% endif %}"
+           class="logs-outline-button">
 
-            Search
-
-        </button>
-
-        <a href="/admin/logs"
-           class="btn btn-secondary">
-
-            Clear
+            Refresh Logs
 
         </a>
 
     </div>
 
-</form>
-
-
-<!-- Performative Information -->
-
-<div class="card p-3 mb-4">
-
-    <h5>Agent Performatives</h5>
-
-    <div class="d-flex flex-wrap gap-2">
-
-        <span class="badge bg-primary">
-            REQUEST
-        </span>
-
-        <span class="badge bg-success">
-            AGREE
-        </span>
-
-        <span class="badge bg-danger">
-            REFUSE
-        </span>
-
-        <span class="badge bg-warning text-dark">
-            PROPOSE
-        </span>
-
-        <span class="badge bg-info text-dark">
-            INFORM
-        </span>
-
-        <span class="badge bg-dark">
-            FAILURE
-        </span>
-
-    </div>
-
 </div>
-
-
-<!-- Total Logs -->
-
-<p>
-
-    <strong>Displayed Messages:</strong>
-
-    {{ logs|length }}
-
-</p>
-
-
-<!-- Agent Message Table -->
-
-<div class="table-responsive">
-
-    <table class="table table-bordered table-striped">
-
-        <thead class="table-dark">
-
-            <tr>
-
-                <th>ID</th>
-
-                <th>Sender</th>
-
-                <th>Receiver</th>
-
-                <th>Performative</th>
-
-                <th>Content</th>
-
-                <th>Conversation ID</th>
-
-                <th>Date and Time</th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            {% for log in logs %}
-
-            <tr>
-
-                <td>{{ log.id }}</td>
-
-                <td>
-
-                    <strong>{{ log.sender }}</strong>
-
-                </td>
-
-                <td>{{ log.receiver }}</td>
-
-
-                <!-- Performative Status -->
-
-                <td>
-
-                    {% if log.performative == "REQUEST" %}
-
-                    <span class="badge bg-primary">
-                        REQUEST
-                    </span>
-
-                    {% elif log.performative == "AGREE" %}
-
-                    <span class="badge bg-success">
-                        AGREE
-                    </span>
-
-                    {% elif log.performative == "REFUSE" %}
-
-                    <span class="badge bg-danger">
-                        REFUSE
-                    </span>
-
-                    {% elif log.performative == "PROPOSE" %}
-
-                    <span class="badge bg-warning text-dark">
-                        PROPOSE
-                    </span>
-
-                    {% elif log.performative == "INFORM" %}
-
-                    <span class="badge bg-info text-dark">
-                        INFORM
-                    </span>
-
-                    {% elif log.performative == "FAILURE" %}
-
-                    <span class="badge bg-dark">
-                        FAILURE
-                    </span>
-
-                    {% else %}
-
-                    <span class="badge bg-secondary">
-                        {{ log.performative }}
-                    </span>
-
-                    {% endif %}
-
-                </td>
-
-
-                <!-- JSON Message Content -->
-
-                <td>
-
-                    <details>
-
-                        <summary class="text-primary">
-
-                            View Message
-
-                        </summary>
-
-                        <pre class="bg-light border rounded p-2 mt-2 agent-json"
-                             style="white-space: pre-wrap; overflow-wrap: anywhere; min-width: 200px;">{{ log.content }}</pre>
-
-                    </details>
-
-                </td>
-
-
-                <!-- Conversation ID -->
-
-                <td class="text-break">
-
-                    <a href="/admin/logs?conversation_id={{ log.conversation_id|urlencode }}">
-
-                        {{ log.conversation_id }}
-
-                    </a>
-
-                </td>
-
-
-                <!-- Date and Time -->
-
-                <td>
-
-                    {{ log.created_at.strftime(
-                        "%Y-%m-%d %H:%M:%S"
-                    ) }} UTC
-
-                </td>
-
-            </tr>
-
-            {% else %}
-
-            <tr>
-
-                <td colspan="7"
-                    class="text-center text-muted">
-
-                    No agent communication logs found.
-
-                </td>
-
-            </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
-</div>
-
-
-<!-- Navigation Buttons -->
-
-<div class="d-flex flex-wrap gap-2 mt-4">
-
-    <a href="/admin"
-       class="btn btn-primary">
-
-        Back to Admin Dashboard
-
-    </a>
-
-    <a href="/admin/logs{% if conversation_id %}?conversation_id={{ conversation_id|urlencode }}{% endif %}"
-       class="btn btn-outline-secondary">
-
-        Refresh Logs
-
-    </a>
-
-</div>
-
 
 <!-- Format JSON Messages -->
 
 <script>
-
     document.querySelectorAll(".agent-json")
         .forEach(function(element) {
 
@@ -313,7 +874,6 @@
             }
 
         });
-
 </script>
 
 {% endblock %}
