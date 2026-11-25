@@ -438,7 +438,7 @@ class WaitlistAgent:
 
             if available < entry.quantity:
 
-                continue
+                break
 
 
             # Reserve Tickets Atomically
