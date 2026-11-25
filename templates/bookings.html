@@ -588,6 +588,11 @@
     updateCountdowns();
 
     setInterval(updateCountdowns, 1000);
+    {% if waitlists | selectattr("status", "equalto", "waiting") | list %}
+    setInterval(function () {
+        window.location.reload();
+    }, 5000);
+{% endif %}
 
 </script>
 
